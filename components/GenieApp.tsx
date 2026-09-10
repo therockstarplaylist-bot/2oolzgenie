@@ -11,10 +11,12 @@ import {
   ShopPage,
   ToolsPage,
 } from "./GeniePages";
+import { useCloudLampStandalone } from "./useCloudLampStandalone";
 import { useGenie } from "./useGenie";
 
 export default function GenieApp() {
   const g = useGenie();
+  const syncStatus = useCloudLampStandalone();
 
   if (!g.ready) {
     return (
@@ -32,7 +34,6 @@ export default function GenieApp() {
 
   const {
     S,
-    syncStatus,
     msg,
     setMsg,
     payNote,
