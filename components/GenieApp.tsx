@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthControls } from "./AuthControls";
 import { PAGES } from "./constants";
 import {
   ArcadePage,
@@ -31,6 +32,7 @@ export default function GenieApp() {
 
   const {
     S,
+    syncStatus,
     msg,
     setMsg,
     payNote,
@@ -87,6 +89,7 @@ export default function GenieApp() {
           <button className="buy" type="button" onClick={() => go("shop")}>
             Buy
           </button>
+          <AuthControls syncStatus={syncStatus} />
         </div>
       </header>
       <nav>
@@ -167,6 +170,7 @@ export default function GenieApp() {
             hourly={hourly}
             goShop={() => go("shop")}
             claimLamp={claimLamp}
+            syncStatus={syncStatus}
           />
         )}
       </main>
