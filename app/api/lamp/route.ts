@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
-import { mergeLampStates, normalize, type State } from "@/components/constants";
+import { normalize, type State } from "@/components/constants";
+import { mergeLampStates } from "@/lib/merge-lamp";
 import {
   isRedisConfigured,
   readLamp,
