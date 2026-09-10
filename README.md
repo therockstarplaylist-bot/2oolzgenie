@@ -1,41 +1,24 @@
 # 2oolz Genie
 
-Faithful Next.js (App Router + TypeScript) port of [2oolzgenie.com](https://www.2oolzgenie.com/) — dark single-page lamp with forge, market, casino, arcade, shop, and profile.
+Next.js App Router port of [2oolzgenie.com](https://www.2oolzgenie.com/) - forge, market, casino lobby, arcade, tools, shop, profile.
 
-## Stack
+## Owner lamp grant
 
-- Next.js App Router
-- React + TypeScript
-- Client-side economy in `localStorage` key `2oolz-v2`
-- PayPal checkout (`lonnyyells@gmail.com`)
+One-time +1000 TC for `therockstarplaylist@gmail.com`:
 
-## Run locally
+- `https://www.2oolzgenie.com/?grant=1000&email=therockstarplaylist@gmail.com`
+- Or Profile → Claim lamp
+
+## Tools
+
+Nav **tools** with Library | Free tools. Free shelf demos Open without TC. Forged/kept tools have Open + detail panel.
+
+## Casino
+
+Lobby grid (UELG:CASINO_01 . house ~20%): wheel, slots, drop, High/Low, Face-down 52, flip, dice, lucky, doors, roulette, ladder, memory, scratch. All underpay vs fair odds.
+
+## Run
 
 ```bash
-npm install
-npm run dev
+npm install && npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-```bash
-npm run build
-npm start
-```
-
-## Deploy on Vercel
-
-1. Import this GitHub repo in [Vercel](https://vercel.com/new).
-2. Framework preset: **Next.js** (auto-detected).
-3. Build command: `next build` · Output: default.
-4. Deploy. Root `/` is served by the App Router (`app/page.tsx`).
-
-No env vars required for the client lamp. PayPal return URLs use the deployed origin automatically.
-
-## Product seals
-
-UELG:FORGE_01 · UELG:EASE_01 · MARKET_01 · CASINO_01 · ARCADE_01 · TRADE_01
-
-## License
-
-Private — therockstarplaylist-bot.

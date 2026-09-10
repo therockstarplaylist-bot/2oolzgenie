@@ -1,14 +1,9 @@
 "use client";
 
 import {
-  HOURLY,
-  PACKS,
   SEED,
   TEASE,
-  TIERS,
-  type DropBit,
   type State,
-  goPaypal,
 } from "./constants";
 
 export function Carousel({ tick }: { tick: number }) {

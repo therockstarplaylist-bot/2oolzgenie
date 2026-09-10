@@ -8,6 +8,7 @@ import {
   MarketPage,
   ProfilePage,
   ShopPage,
+  ToolsPage,
 } from "./GeniePages";
 import { useGenie } from "./useGenie";
 
@@ -20,7 +21,7 @@ export default function GenieApp() {
         <header>
           <div className="brand">2oolz Genie</div>
           <div className="right">
-            <div className="coins">…</div>
+            <div className="coins">...</div>
           </div>
         </header>
         <main />
@@ -58,6 +59,12 @@ export default function GenieApp() {
     startTap,
     onTapHit,
     onHangGuess,
+    claimLamp,
+    deleteTool,
+    addFreeTool,
+    hilo,
+    face52,
+    extra,
   } = g;
 
   return (
@@ -66,8 +73,17 @@ export default function GenieApp() {
         <div className="brand">2oolz Genie</div>
         <div className="right">
           <div className="coins">
-            {Math.floor(S.coins)} TC · +{hourly}/h
+            {Math.floor(S.coins)} TC . +{hourly}/h
           </div>
+          {S.tools.length > 0 && (
+            <button
+              className="buy tools-shortcut"
+              type="button"
+              onClick={() => go("tools")}
+            >
+              Tools
+            </button>
+          )}
           <button className="buy" type="button" onClick={() => go("shop")}>
             Buy
           </button>
@@ -114,6 +130,9 @@ export default function GenieApp() {
             dropBits={dropBits}
             onPlay={play}
             onDropClick={onDropClick}
+            hilo={hilo}
+            face52={face52}
+            extra={extra}
           />
         )}
         {S.page === "arcade" && (
@@ -130,11 +149,25 @@ export default function GenieApp() {
             onHangGuess={onHangGuess}
           />
         )}
+        {S.page === "tools" && (
+          <ToolsPage
+            S={S}
+            msg={msg}
+            go={go}
+            onDelete={deleteTool}
+            addFreeTool={addFreeTool}
+          />
+        )}
         {S.page === "shop" && (
           <ShopPage S={S} msg={msg} setMsg={setMsg} payNote={payNote} />
         )}
         {S.page === "profile" && (
-          <ProfilePage S={S} hourly={hourly} goShop={() => go("shop")} />
+          <ProfilePage
+            S={S}
+            hourly={hourly}
+            goShop={() => go("shop")}
+            claimLamp={claimLamp}
+          />
         )}
       </main>
     </>
