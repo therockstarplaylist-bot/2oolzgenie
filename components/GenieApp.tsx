@@ -61,6 +61,10 @@ export default function GenieApp() {
     onHangGuess,
     claimLamp,
     deleteTool,
+    addFreeTool,
+    hilo,
+    face52,
+    extra,
   } = g;
 
   return (
@@ -126,6 +130,9 @@ export default function GenieApp() {
             dropBits={dropBits}
             onPlay={play}
             onDropClick={onDropClick}
+            hilo={hilo}
+            face52={face52}
+            extra={extra}
           />
         )}
         {S.page === "arcade" && (
@@ -143,7 +150,13 @@ export default function GenieApp() {
           />
         )}
         {S.page === "tools" && (
-          <ToolsPage S={S} msg={msg} go={go} onDelete={deleteTool} />
+          <ToolsPage
+            S={S}
+            msg={msg}
+            go={go}
+            onDelete={deleteTool}
+            addFreeTool={addFreeTool}
+          />
         )}
         {S.page === "shop" && (
           <ShopPage S={S} msg={msg} setMsg={setMsg} payNote={payNote} />
