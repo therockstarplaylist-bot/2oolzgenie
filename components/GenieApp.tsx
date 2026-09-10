@@ -21,7 +21,7 @@ export default function GenieApp() {
         <header>
           <div className="brand">2oolz Genie</div>
           <div className="right">
-            <div className="coins">…</div>
+            <div className="coins">...</div>
           </div>
         </header>
         <main />
@@ -73,7 +73,7 @@ export default function GenieApp() {
         <div className="brand">2oolz Genie</div>
         <div className="right">
           <div className="coins">
-            {Math.floor(S.coins)} TC · +{hourly}/h
+            {Math.floor(S.coins)} TC . +{hourly}/h
           </div>
           {S.tools.length > 0 && (
             <button
