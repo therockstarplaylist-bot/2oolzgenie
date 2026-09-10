@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Providers from "@/components/Providers";
 import "./globals.css";
+import "./auth.css";
 
 export const metadata: Metadata = {
   title: "2oolz Genie",

@@ -2,4 +2,5 @@
 
 export { Carousel, ForgePage, MarketPage } from "./ForgeMarket";
 export { CasinoPage, ArcadePage } from "./CasinoArcade";
-export { ShopPage, ProfilePage, ToolsPage } from "./ShopProfile";
+export { ShopPage, ToolsPage } from "./ShopProfile";
+export { ProfilePage } from "./ProfileLamp";
