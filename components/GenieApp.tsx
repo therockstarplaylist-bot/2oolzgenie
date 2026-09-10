@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthControls } from "./AuthControls";
 import { PAGES } from "./constants";
 import {
   ArcadePage,
@@ -10,10 +11,12 @@ import {
   ShopPage,
   ToolsPage,
 } from "./GeniePages";
+import { useCloudLampStandalone } from "./useCloudLampStandalone";
 import { useGenie } from "./useGenie";
 
 export default function GenieApp() {
   const g = useGenie();
+  const syncStatus = useCloudLampStandalone();
 
   if (!g.ready) {
     return (
@@ -87,6 +90,7 @@ export default function GenieApp() {
           <button className="buy" type="button" onClick={() => go("shop")}>
             Buy
           </button>
+          <AuthControls syncStatus={syncStatus} />
         </div>
       </header>
       <nav>
@@ -167,6 +171,7 @@ export default function GenieApp() {
             hourly={hourly}
             goShop={() => go("shop")}
             claimLamp={claimLamp}
+            syncStatus={syncStatus}
           />
         )}
       </main>
