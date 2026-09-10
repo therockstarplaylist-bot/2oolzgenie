@@ -187,7 +187,7 @@ export function ToolsPage({
       </div>
       {tab === "free" && (
         <>
-          <p>Demo shelf - cute, low-value previews. Open free. Add optional.</p>
+          <p>Demo shelf. Open free.</p>
           <div className="grid">
             {FREE_TOOLS.map((t) => (
               <div className="row" key={t.id}>
@@ -211,9 +211,7 @@ export function ToolsPage({
         <>
           {!S.tools.length ? (
             <>
-              <p>
-                No kept tools yet. Try Free tools, or Forge / Market.
-              </p>
+              <p>Empty. Try Free tools.</p>
               <div className="grid">
                 <button className="btn" type="button" onClick={() => setTab("free")}>
                   Browse Free tools
@@ -275,8 +273,8 @@ export function ProfilePage({
       </button>
       <h2>Email</h2>
       <p className="note">
-        Coins live in this browser lamp until accounts exist. Claim with{" "}
-        {OWNER_EMAIL} once for the owner grant.
+        Claim with{" "}
+        {OWNER_EMAIL} for +1000 TC once.
       </p>
       <input
         className="email-field"
