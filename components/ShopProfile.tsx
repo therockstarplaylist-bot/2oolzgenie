@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import {
   FREE_TOOLS,
@@ -11,7 +10,6 @@ import {
   type State,
   goPaypal,
 } from "./constants";
-
 export function ShopPage({
   S,
   msg,
@@ -31,7 +29,7 @@ export function ShopPage({
         <h2 style={{ color: "var(--coin)" }}>Pay with card</h2>
         <p>
           Gold buttons open PayPal. Pay with Visa, Mastercard, Amex, or a PayPal
-          balance. After you pay, tap Return to 2oolz Genie — coins land in this
+          balance. After you pay, tap Return to 2oolz Genie - coins land in this
           lamp.
         </p>
       </div>
@@ -58,7 +56,7 @@ export function ShopPage({
           <div>
             <b>{t.l}</b>
             <div className="seal">
-              {t.c} TC now · ${t.u} / {t.cad} · +{HOURLY[t.id]}/h
+              {t.c} TC now . ${t.u} / {t.cad} . +{HOURLY[t.id]}/h
             </div>
           </div>
           <button
@@ -83,7 +81,6 @@ export function ShopPage({
     </>
   );
 }
-
 export function ToolsPage({
   S,
   msg,
@@ -100,13 +97,11 @@ export function ToolsPage({
   const [tab, setTab] = useState<"library" | "free">("library");
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [openFree, setOpenFree] = useState<string | null>(null);
-
   const freeTool = FREE_TOOLS.find((t) => t.id === openFree) || null;
   const open =
     openIdx != null && openIdx >= 0 && openIdx < S.tools.length
       ? S.tools[openIdx]
       : null;
-
   if (open && openIdx != null) {
     const forged = new Date(open.t).toLocaleString();
     const demo =
@@ -119,7 +114,7 @@ export function ToolsPage({
         <div className="tool-panel">
           <h2>{open.n}</h2>
           <p className="seal">
-            {open.r} · forged {forged}
+            {open.r} . forged {forged}
           </p>
           <p className="tool-body">{demo || open.n}</p>
           <div className="tool-actions">
@@ -142,11 +137,10 @@ export function ToolsPage({
       </>
     );
   }
-
   if (freeTool) {
     return (
       <>
-        <p className="seal">UELG:TOOLS_01 · free shelf</p>
+        <p className="seal">UELG:TOOLS_01 . free shelf</p>
         <h1>{freeTool.n}</h1>
         <div className="tool-panel">
           <p className="seal">{freeTool.r}</p>
@@ -171,7 +165,6 @@ export function ToolsPage({
       </>
     );
   }
-
   return (
     <>
       <p className="seal">UELG:TOOLS_01</p>
@@ -192,16 +185,15 @@ export function ToolsPage({
           Free tools
         </button>
       </div>
-
       {tab === "free" && (
         <>
-          <p>Demo shelf — cute, low-value previews. Open free. Add optional.</p>
+          <p>Demo shelf - cute, low-value previews. Open free. Add optional.</p>
           <div className="grid">
             {FREE_TOOLS.map((t) => (
               <div className="row" key={t.id}>
                 <div>
                   <b>{t.n}</b>
-                  <div className="seal">{t.r} · preview</div>
+                  <div className="seal">{t.r} . preview</div>
                 </div>
                 <button
                   className="btn open-tool"
@@ -215,7 +207,6 @@ export function ToolsPage({
           </div>
         </>
       )}
-
       {tab === "library" && (
         <>
           {!S.tools.length ? (
@@ -260,7 +251,6 @@ export function ToolsPage({
     </>
   );
 }
-
 export function ProfilePage({
   S,
   hourly,
@@ -278,12 +268,11 @@ export function ProfilePage({
       <p className="seal">Profile</p>
       <h1>Lamp</h1>
       <p className="drip">
-        Tier {S.tier} · +{hourly} TC / hour · {S.wishes} wishes
+        Tier {S.tier} . +{hourly} TC / hour . {S.wishes} wishes
       </p>
       <button className="btn" type="button" onClick={goShop}>
         Open Shop
       </button>
-
       <h2>Email</h2>
       <p className="note">
         Coins live in this browser lamp until accounts exist. Claim with{" "}
@@ -303,11 +292,10 @@ export function ProfilePage({
       </button>
       {S.email && (
         <p className="drip">
-          Saved · {S.email}
-          {S.ownerGrant ? " · owner grant claimed" : ""}
+          Saved . {S.email}
+          {S.ownerGrant ? " . owner grant claimed" : ""}
         </p>
       )}
-
       <h2>Library</h2>
       {S.tools.length ? (
         S.tools.map((t, i) => (
