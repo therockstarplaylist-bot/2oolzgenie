@@ -1,4 +1,4 @@
-# 2oolz Genie 
+# 2oolz Genie
 
 Next.js App Router port of [2oolzgenie.com](https://www.2oolzgenie.com/) — forge, market, casino lobby, arcade, tools, shop, profile.
 
@@ -34,7 +34,7 @@ Auth error page: `/auth/error` (shows the Auth.js `error` query param when Sign-
    - coins = max(local, cloud)
    - tools = union deduped by `name+time`
    - tier = higher of the two
-   - wishes / ownerGrant = max / OR
+   - wishes / skillWishes / ownerGrant = max / OR
    - `passiveAt` = later of the two (coherent drip)
 
 API: `GET` / `PUT` `/api/lamp` (session required). Auth: `/api/auth/[...nextauth]`.
@@ -48,7 +48,21 @@ One-time +1000 TC for `therockstarplaylist@gmail.com`:
 
 ## Tools
 
-Nav **tools** with Library | Free tools. Free shelf demos Open without TC. Forged/kept tools have Open + detail panel.
+Nav **tools** with Library | Free tools | Skill Genie. Free shelf demos Open without TC. Skill Genie has 50 unlockable product tools (1 `skillWish` each). Forged/kept tools have Open + detail panel.
+
+## Skill Genie packs
+
+Wish currency for the **Skill Genie** tools shelf (separate from daily casino `wishes` and TC):
+
+| Pack id | Wishes | Price |
+| --- | --- | --- |
+| `spark` | 3 | $5 |
+| `coil` | 10 | $12 |
+| `seal` | 25 | $29 |
+| `lattice` | 60 | $69 |
+| `apex` | 120 | $129 |
+
+1 skill wish unlocks 1 catalog tool into your library (`skillId`). Free Tools remain demos. State field: `skillWishes` (default 0). PayPal return credits the pack the same way as coin packs (`?paid=<packId>`).
 
 ## Casino
 

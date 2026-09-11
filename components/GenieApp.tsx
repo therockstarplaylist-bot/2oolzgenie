@@ -65,6 +65,7 @@ export default function GenieApp() {
     claimLamp,
     deleteTool,
     addFreeTool,
+    unlockSkill,
     hilo,
     face52,
     extra,
@@ -160,6 +161,7 @@ export default function GenieApp() {
             go={go}
             onDelete={deleteTool}
             addFreeTool={addFreeTool}
+            unlockSkill={unlockSkill}
           />
         )}
         {S.page === "shop" && (
