@@ -6,24 +6,29 @@ Guest mode keeps the lamp in browser `localStorage` (`2oolz-v2`). **Sign in with
 
 ## Google accounts + cloud lamp
 
+**Sign-in uses JWT sessions** — Auth.js does **not** need Redis/Upstash. You only need `AUTH_SECRET` + Google OAuth vars. Upstash is optional and only powers cross-device lamp sync via `/api/lamp`.
+
 1. **Google Cloud OAuth client**
    - Create an OAuth 2.0 Client ID (Web application).
    - Authorized JavaScript origins: `https://www.2oolzgenie.com`, `http://localhost:3000`
    - Authorized redirect URIs:
      - `https://www.2oolzgenie.com/api/auth/callback/google`
      - `http://localhost:3000/api/auth/callback/google`
-2. **Upstash Redis** (free tier is fine)
+2. **Upstash Redis** (optional — free tier is fine)
+   - Only needed for cross-device lamp sync. Without it, Sign-in still works; lamp stays local / sync shows "Cloud off".
    - Create a database → copy REST URL + token.
 3. **Vercel project env** (Settings → Environment Variables) — paste these, then redeploy:
 
-| Variable | Notes |
-| --- | --- |
-| `AUTH_SECRET` | Random secret (`npx auth secret` or `openssl rand -base64 32`) |
-| `AUTH_URL` | `https://www.2oolzgenie.com` |
-| `AUTH_GOOGLE_ID` | Google OAuth client ID (alias: `GOOGLE_CLIENT_ID`) |
-| `AUTH_GOOGLE_SECRET` | Google OAuth client secret (alias: `GOOGLE_CLIENT_SECRET`) |
-| `UPSTASH_REDIS_REST_URL` | Upstash REST URL (or `KV_REST_API_URL`) |
-| `UPSTASH_REDIS_REST_TOKEN` | Upstash REST token (or `KV_REST_API_TOKEN`) |
+| Variable | Required? | Notes |
+| --- | --- | --- |
+| `AUTH_SECRET` | **Yes** (Sign-in) | Random secret (`npx auth secret` or `openssl rand -base64 32`) |
+| `AUTH_URL` | Recommended | `https://www.2oolzgenie.com` |
+| `AUTH_GOOGLE_ID` | **Yes** (Sign-in) | Google OAuth client ID (alias: `GOOGLE_CLIENT_ID`; trimmed) |
+| `AUTH_GOOGLE_SECRET` | **Yes** (Sign-in) | Google OAuth client secret (alias: `GOOGLE_CLIENT_SECRET`; trimmed) |
+| `UPSTASH_REDIS_REST_URL` | Optional (sync) | Upstash REST URL (or `KV_REST_API_URL`) |
+| `UPSTASH_REDIS_REST_TOKEN` | Optional (sync) | Upstash REST token (or `KV_REST_API_TOKEN`) |
+
+Auth error page: `/auth/error` (shows the Auth.js `error` query param when Sign-in fails).
 
 4. Open the site → **Sign in with Google** (header or Profile). First login merges local `2oolz-v2` into `lamp:{email}`:
    - coins = max(local, cloud)
@@ -53,7 +58,7 @@ Lobby grid (UELG:CASINO_01 . house ~20%): wheel, slots, drop, High/Low, Face-dow
 
 ```bash
 cp .env.example .env.local
-# fill AUTH_* and UPSTASH_* for cloud sync; guest mode works without them
+# fill AUTH_SECRET + AUTH_GOOGLE_* for Sign-in (JWT; no Redis)
+# fill UPSTASH_* only if you want cross-device lamp sync; guest mode works without any of these
 npm install && npm run dev
 ```
- 
