@@ -1,4 +1,4 @@
-# 2oolz Genie
+# 2oolz Genie 
 
 Next.js App Router port of [2oolzgenie.com](https://www.2oolzgenie.com/) — forge, market, casino lobby, arcade, tools, shop, profile.
 
