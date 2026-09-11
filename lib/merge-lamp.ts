@@ -34,6 +34,7 @@ export function mergeLampStates(local: State, cloud: State | null): State {
     tools,
     tier: higherTier(local.tier || "free", cloud.tier || "free"),
     wishes: Math.max(Number(local.wishes) || 0, Number(cloud.wishes) || 0),
+    skillWishes: Math.max(Number(local.skillWishes) || 0, Number(cloud.skillWishes) || 0),
     ownerGrant: Boolean(local.ownerGrant || cloud.ownerGrant),
     passiveAt: Math.max(
       Number(local.passiveAt) || 0,
