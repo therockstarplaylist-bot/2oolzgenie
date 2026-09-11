@@ -56,3 +56,4 @@ cp .env.example .env.local
 # fill AUTH_* and UPSTASH_* for cloud sync; guest mode works without them
 npm install && npm run dev
 ```
+ 
