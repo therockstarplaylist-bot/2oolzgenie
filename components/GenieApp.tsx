@@ -79,15 +79,13 @@ export default function GenieApp() {
           <div className="coins">
             {Math.floor(S.coins)} TC . +{hourly}/h
           </div>
-          {S.tools.length > 0 && (
-            <button
-              className="buy tools-shortcut"
-              type="button"
-              onClick={() => go("tools")}
-            >
-              Tools
-            </button>
-          )}
+          <button
+            className="buy tools-shortcut"
+            type="button"
+            onClick={() => go("tools")}
+          >
+            Tools
+          </button>
           <button className="buy" type="button" onClick={() => go("shop")}>
             Buy
           </button>

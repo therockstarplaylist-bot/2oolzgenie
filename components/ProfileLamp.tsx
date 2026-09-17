@@ -22,7 +22,7 @@ export function ProfilePage({
       <p className="seal">UELG:PROFILE_01</p>
       <h1>Lamp</h1>
       <p className="drip">
-        Tier {S.tier} . +{hourly} TC / hour . {S.wishes} wishes
+        Tier {S.tier} . +{hourly} TC / hour . {S.wishes} wishes . {S.skillWishes || 0} skill wishes
       </p>
       <p className="note">
         Sync: {syncStatus || "guest"} . Guest play stays in this browser until

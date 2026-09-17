@@ -1,78 +1,51 @@
-# 2oolz Genie
+# 2oolz Genie (Next.js)
 
-Next.js App Router port of [2oolzgenie.com](https://www.2oolzgenie.com/) — forge, market, casino lobby, arcade, tools, shop, profile.
+UELG lamp app: forge tools, market drops, casino / arcade, **Tools** (Free utilities + Skill Genie), shop, profile.
 
-Guest mode keeps the lamp in browser `localStorage` (`2oolz-v2`). **Sign in with Google** syncs TC, tools, tier, wishes, drip, and ownerGrant to the cloud keyed by Google email.
+## Stack
 
-## Google accounts + cloud lamp
+- Next.js App Router + Auth.js (Google) with **JWT sessions** (no Redis required for Sign-in)
+- Optional Upstash Redis for cross-device lamp sync (`/api/lamp`)
 
-**Sign-in uses JWT sessions** — Auth.js does **not** need Redis/Upstash. You only need `AUTH_SECRET` + Google OAuth vars. Upstash is optional and only powers cross-device lamp sync via `/api/lamp`.
+## Env
 
-1. **Google Cloud OAuth client**
-   - Create an OAuth 2.0 Client ID (Web application).
-   - Authorized JavaScript origins: `https://www.2oolzgenie.com`, `http://localhost:3000`
-   - Authorized redirect URIs:
-     - `https://www.2oolzgenie.com/api/auth/callback/google`
-     - `http://localhost:3000/api/auth/callback/google`
-2. **Upstash Redis** (optional — free tier is fine)
-   - Only needed for cross-device lamp sync. Without it, Sign-in still works; lamp stays local / sync shows "Cloud off".
-   - Create a database → copy REST URL + token.
-3. **Vercel project env** (Settings → Environment Variables) — paste these, then redeploy:
+Copy `.env.example` → `.env.local`:
 
-| Variable | Required? | Notes |
-| --- | --- | --- |
-| `AUTH_SECRET` | **Yes** (Sign-in) | Random secret (`npx auth secret` or `openssl rand -base64 32`) |
-| `AUTH_URL` | Recommended | `https://www.2oolzgenie.com` |
-| `AUTH_GOOGLE_ID` | **Yes** (Sign-in) | Google OAuth client ID (alias: `GOOGLE_CLIENT_ID`; trimmed) |
-| `AUTH_GOOGLE_SECRET` | **Yes** (Sign-in) | Google OAuth client secret (alias: `GOOGLE_CLIENT_SECRET`; trimmed) |
-| `UPSTASH_REDIS_REST_URL` | Optional (sync) | Upstash REST URL (or `KV_REST_API_URL`) |
-| `UPSTASH_REDIS_REST_TOKEN` | Optional (sync) | Upstash REST token (or `KV_REST_API_TOKEN`) |
+- `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_URL` / `NEXTAUTH_URL`
+- Optional: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (lamp sync only)
 
 Auth error page: `/auth/error` (shows the Auth.js `error` query param when Sign-in fails).
 
-4. Open the site → **Sign in with Google** (header or Profile). First login merges local `2oolz-v2` into `lamp:{email}`:
-   - coins = max(local, cloud)
-   - tools = union deduped by `name+time`
-   - tier = higher of the two
-   - wishes / skillWishes / ownerGrant = max / OR
-   - `passiveAt` = later of the two (coherent drip)
+## Lamp sync
+
+When signed in, local `2oolz-v2` merges with cloud:
+
+- coins = max(local, cloud)
+- tools = union deduped by `name+time`
+- tier = higher of the two
+- wishes / skillWishes / ownerGrant = max / OR
+- `passiveAt` = later of the two (coherent drip)
 
 API: `GET` / `PUT` `/api/lamp` (session required). Auth: `/api/auth/[...nextauth]`.
 
-## Owner lamp grant
+## Owner grant
 
 One-time +1000 TC for `therockstarplaylist@gmail.com`:
 
-- `https://www.2oolzgenie.com/?grant=1000&email=therockstarplaylist@gmail.com`
-- Or Profile → Claim lamp / Sign in with that Google account
+- Claim email on Profile, or sign in with that Google account (auto-claim in `useGenie` / cloud merge).
 
 ## Tools
 
-Nav **tools** with Library | Free tools | Skill Genie. Free shelf demos Open without TC. Skill Genie has 50 unlockable product tools (1 `skillWish` each). Forged/kept tools have Open + detail panel.
+Nav **tools** (header shortcut always visible) with **Library | Free tools | Skill Genie**.
 
-## Skill Genie packs
+- **Free tools (≥20):** real client-side utilities (JSON, Base64, UUID, password, SHA-256, diff, regex, tip calc, …). Open → fields → Run → copyable output. No TC.
+- **Skill Genie (50):** wish-unlock product tools (`skillWishes`). Buy packs in Shop (PayPal). 1 wish unlocks 1 tool; each has `run(input)`.
+- Library holds forged / added / unlocked tools with Open panels.
 
-Wish currency for the **Skill Genie** tools shelf (separate from daily casino `wishes` and TC):
-
-| Pack id | Wishes | Price |
-| --- | --- | --- |
-| `spark` | 3 | $5 |
-| `coil` | 10 | $12 |
-| `seal` | 25 | $29 |
-| `lattice` | 60 | $69 |
-| `apex` | 120 | $129 |
-
-1 skill wish unlocks 1 catalog tool into your library (`skillId`). Free Tools remain demos. State field: `skillWishes` (default 0). PayPal return credits the pack the same way as coin packs (`?paid=<packId>`).
-
-## Casino
-
-Lobby grid (UELG:CASINO_01 . house ~20%): wheel, slots, drop, High/Low, Face-down 52, flip, dice, lucky, doors, roulette, ladder, memory, scratch. All underpay vs fair odds.
-
-## Run
+## Dev
 
 ```bash
-cp .env.example .env.local
-# fill AUTH_SECRET + AUTH_GOOGLE_* for Sign-in (JWT; no Redis)
-# fill UPSTASH_* only if you want cross-device lamp sync; guest mode works without any of these
-npm install && npm run dev
+npm install
+npm run build
+npm run dev
 ```
