@@ -69,119 +69,15 @@ export const HANG = [
   "WISH",
   "PULSE",
 ];
-export const FREE_TOOLS: {
-  id: string;
-  n: string;
-  r: string;
-  blurb: string;
-  how: string[];
-  body: string;
-  demo: string;
-  inputLabel?: string;
-  inputPlaceholder?: string;
-  runLabel?: string;
-}[] = [
-  {
-    id: "echo",
-    n: "Echo Note",
-    r: "free",
-    blurb: "Type anything — the lamp repeats it back.",
-    how: [
-      "Tap Open on Echo Note",
-      "Type a short note in the box",
-      "Tap Try it to hear the lamp echo",
-    ],
-    body: "A demo whisper tool. It does not save notes or spend TC. It only shows that Open + Try it works.",
-    demo: "The lamp echoes: \"hello from the free shelf.\"",
-    inputLabel: "Your note",
-    inputPlaceholder: "Say hi to the lamp…",
-    runLabel: "Try it",
-  },
-  {
-    id: "flip",
-    n: "Coin Flip Tip",
-    r: "free",
-    blurb: "Get a playful tip about flipping coins (no real bet).",
-    how: [
-      "Tap Open",
-      "Optional: type heads or tails",
-      "Tap Try it for a tip — it never pays TC",
-    ],
-    body: "Show-off tip generator. Not a casino game. No payouts.",
-    demo: "Tip: call it in the air. The lamp still keeps the house edge elsewhere.",
-    inputLabel: "Call (optional)",
-    inputPlaceholder: "heads or tails",
-    runLabel: "Try it",
-  },
-  {
-    id: "joke",
-    n: "Lamp Joke",
-    r: "free",
-    blurb: "One soft genie joke per Try it.",
-    how: ["Tap Open", "Tap Try it", "Read the joke — that is the whole tool"],
-    body: "A silly one-liner shelf. Pure demo. No TC.",
-    demo: "Why did the genie open a casino? To make wishes… and take a cut.",
-    runLabel: "Tell me a joke",
-  },
-  {
-    id: "sticker",
-    n: "Seal Sticker",
-    r: "free",
-    blurb: "Slap a fake UELG sticker on your lamp UI.",
-    how: ["Tap Open", "Tap Try it", "See the sticker message (cosmetic only)"],
-    body: "Digital sticker. Zero power. Just proves the Open panel runs.",
-    demo: "* UELG sticker affixed. It does nothing. Looking good though.",
-    runLabel: "Affix sticker",
-  },
-  {
-    id: "hourglass",
-    n: "Hourglass Reminder",
-    r: "free",
-    blurb: "Pretend to set a reminder that an hour passed.",
-    how: [
-      "Tap Open",
-      "Optional: type what to remember",
-      "Tap Try it — demo only, no real timer",
-    ],
-    body: "Looks like a reminder tool. Does not schedule anything. Demo shelf.",
-    demo: "Reminder set… somewhere. Probably. Check back in an hour (or don't).",
-    inputLabel: "Remember what?",
-    inputPlaceholder: "drink water / stretch / forge",
-    runLabel: "Try it",
-  },
-  {
-    id: "spark",
-    n: "Sparkle Dust",
-    r: "free",
-    blurb: "Cosmetic sparkle. Zero stats.",
-    how: ["Tap Open", "Tap Try it", "Enjoy the sparkle text"],
-    body: "Purely decorative. Shows that Try it can fire instantly.",
-    demo: "* sparkle * (purely decorative)",
-    runLabel: "Sparkle",
-  },
-  {
-    id: "compass",
-    n: "Soft Compass",
-    r: "free",
-    blurb: "Points vaguely toward the Forge.",
-    how: ["Tap Open", "Tap Try it", "Read the silly bearing"],
-    body: "Not navigation. A demo compass that always leans lampward.",
-    demo: "Bearing: toward the forge. Confidence: soft.",
-    runLabel: "Take a bearing",
-  },
-  {
-    id: "lullaby",
-    n: "Coil Lullaby",
-    r: "free",
-    blurb: "A tiny text hum. No audio file.",
-    how: ["Tap Open", "Tap Try it", "Read the hum — audio not included"],
-    body: "Pretend sound tool. Text only. Demo shelf.",
-    demo: "mmm… coil… hum… (demo audio not included)",
-    runLabel: "Hum",
-  },
-];
+export type { FreeTool, FreeToolField, FreeToolCat } from "./freeTools";
+export {
+  FREE_TOOLS,
+  FREE_TOOL_CATS,
+  freeCatLabel,
+  runFreeTool,
+} from "./freeTools";
 
-export type Tool = { n: string; r: string; t: number; freeId?: string };
+export type Tool = { n: string; r: string; t: number; freeId?: string; skillId?: string };
 export type State = {
   coins: number;
   tools: Tool[];
@@ -191,6 +87,7 @@ export type State = {
   page: Page;
   tier: string;
   wishes: number;
+  skillWishes: number;
   passiveAt: number;
   email?: string;
   ownerGrant?: boolean;
@@ -225,12 +122,15 @@ export function defaultState(): State {
     page: "forge",
     tier: "free",
     wishes: 3,
+    skillWishes: 0,
     passiveAt: Date.now(),
   };
 }
 export function normalize(raw: Partial<State> | null): State {
   const S = { ...defaultState(), ...(raw || {}) };
   if (S.wishes == null) S.wishes = 3;
+  if (S.skillWishes == null || Number.isNaN(Number(S.skillWishes))) S.skillWishes = 0;
+  else S.skillWishes = Math.max(0, Math.floor(Number(S.skillWishes)));
   if (!S.passiveAt) S.passiveAt = Date.now();
   if (!S.tier) S.tier = "free";
   if (!PAGES.includes(S.page as Page)) S.page = "forge";
