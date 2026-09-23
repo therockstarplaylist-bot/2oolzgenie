@@ -37,7 +37,7 @@ export function ProfilePage({
       <h2>Email / claim</h2>
       <p className="note">
         Sign in with Google to cloud-save your lamp. Owner grant: claim with{" "}
-        {OWNER_EMAIL} for +1000 TC once (also applies when that Google account
+        {OWNER_EMAIL} for +500,000 TC once (also applies when that Google account
         signs in).
       </p>
       <input
