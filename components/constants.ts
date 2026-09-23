@@ -9,15 +9,17 @@ export const PAGES = [
 ] as const;
 export type Page = (typeof PAGES)[number];
 export const KEY = "2oolz-v2";
-export const START = 50;
+export const START = 200;
+export const FORGE = 12;
+export const FIRST_REAL_FORGE_KEY = "tg_first_real_forge";
 export const LOSS_CAP = 200;
 export const ARCADE_CAP = 50;
 export const DROP_COST = 25;
 export const WISH_BET = 10;
 export const MAX_H = 72;
-export const PAYPAL = "lonnyyells@gmail.com";
+export const PAYPAL = "theopenmindfold@gmail.com";
 export const OWNER_EMAIL = "therockstarplaylist@gmail.com";
-export const OWNER_GRANT = 1000;
+export const OWNER_GRANT = 500_000;
 export const HOURLY: Record<string, number> = {
   free: 1,
   basic: 3,
@@ -26,7 +28,7 @@ export const HOURLY: Record<string, number> = {
   lifetime: 15,
 };
 export const TIERS = [
-  { id: "free", l: "Free", c: 50, u: 0, cad: "start" },
+  { id: "free", l: "Free", c: 200, u: 0, cad: "start" },
   { id: "basic", l: "Basic", c: 300, u: 9, cad: "year" },
   { id: "pro", l: "Pro", c: 650, u: 29, cad: "year" },
   { id: "ultimate", l: "Ultimate", c: 1000, u: 79, cad: "year" },
@@ -69,119 +71,307 @@ export const HANG = [
   "WISH",
   "PULSE",
 ];
-export const FREE_TOOLS: {
+export type ToolRarity = "common" | "uncommon" | "rare";
+export type FreeTool = {
   id: string;
   n: string;
-  r: string;
+  r: ToolRarity;
+  rarity: ToolRarity;
   blurb: string;
   how: string[];
   body: string;
-  demo: string;
-  inputLabel?: string;
-  inputPlaceholder?: string;
-  runLabel?: string;
-}[] = [
+  /** Plain action line for Nearby ideas — never a product name. */
+  hint: string;
+  tags: string[];
+};
+export const FREE_TOOLS: FreeTool[] = [
   {
-    id: "echo",
-    n: "Echo Note",
-    r: "free",
-    blurb: "Type anything — the lamp repeats it back.",
-    how: [
-      "Tap Open on Echo Note",
-      "Type a short note in the box",
-      "Tap Try it to hear the lamp echo",
-    ],
-    body: "A demo whisper tool. It does not save notes or spend TC. It only shows that Open + Try it works.",
-    demo: "The lamp echoes: \"hello from the free shelf.\"",
-    inputLabel: "Your note",
-    inputPlaceholder: "Say hi to the lamp…",
-    runLabel: "Try it",
+    id: "paste",
+    n: "Paste Cleaner",
+    r: "common",
+    rarity: "common",
+    blurb: "Strip utm_*/fbclid tracking params, collapse whitespace, copy clean.",
+    how: ["Paste a URL or messy text", "Tap Clean", "Tap Copy"],
+    body: "Client-side cleaner. Removes common trackers (utm_*, fbclid, gclid, and friends) and collapses noisy whitespace. Zero TC.",
+    hint: "Strip tracking junk from a pasted link and copy the clean text.",
+    tags: ["url", "track", "clean", "strip", "link", "utm", "paste"],
   },
   {
-    id: "flip",
-    n: "Coin Flip Tip",
-    r: "free",
-    blurb: "Get a playful tip about flipping coins (no real bet).",
-    how: [
-      "Tap Open",
-      "Optional: type heads or tails",
-      "Tap Try it for a tip — it never pays TC",
-    ],
-    body: "Show-off tip generator. Not a casino game. No payouts.",
-    demo: "Tip: call it in the air. The lamp still keeps the house edge elsewhere.",
-    inputLabel: "Call (optional)",
-    inputPlaceholder: "heads or tails",
-    runLabel: "Try it",
+    id: "timer",
+    n: "Focus Timer",
+    r: "common",
+    rarity: "common",
+    blurb: "Minutes in, real countdown with start / pause / reset.",
+    how: ["Set minutes", "Tap Start", "Pause or Reset anytime"],
+    body: "A real in-browser focus countdown. Soft lamp copy, hard clock math. Zero TC.",
+    hint: "Set a quiet countdown and pause it when you need a breath.",
+    tags: ["focus", "clock", "countdown", "minute", "timer", "pomodoro"],
   },
   {
-    id: "joke",
-    n: "Lamp Joke",
-    r: "free",
-    blurb: "One soft genie joke per Try it.",
-    how: ["Tap Open", "Tap Try it", "Read the joke — that is the whole tool"],
-    body: "A silly one-liner shelf. Pure demo. No TC.",
-    demo: "Why did the genie open a casino? To make wishes… and take a cut.",
-    runLabel: "Tell me a joke",
+    id: "check",
+    n: "Quick Checklist",
+    r: "common",
+    rarity: "common",
+    blurb: "Add, toggle, delete — persists in localStorage.",
+    how: ["Type an item and tap Add", "Tap to check off", "Delete what you do not need"],
+    body: "Tiny checklist saved under tg-checklist on this device. Zero TC.",
+    hint: "Keep a short checklist that stays on this device.",
+    tags: ["list", "todo", "checklist", "task", "agenda"],
   },
   {
-    id: "sticker",
-    n: "Seal Sticker",
-    r: "free",
-    blurb: "Slap a fake UELG sticker on your lamp UI.",
-    how: ["Tap Open", "Tap Try it", "See the sticker message (cosmetic only)"],
-    body: "Digital sticker. Zero power. Just proves the Open panel runs.",
-    demo: "* UELG sticker affixed. It does nothing. Looking good though.",
-    runLabel: "Affix sticker",
+    id: "words",
+    n: "Word / Char Counter",
+    r: "common",
+    rarity: "common",
+    blurb: "Live counts for words, characters, and lines.",
+    how: ["Paste or type text", "Watch the counts update"],
+    body: "Instant word, character, and line tallies as you type. Zero TC.",
+    hint: "Count words, characters, and lines as you type.",
+    tags: ["count", "text", "writing", "words", "chars"],
   },
   {
-    id: "hourglass",
-    n: "Hourglass Reminder",
-    r: "free",
-    blurb: "Pretend to set a reminder that an hour passed.",
-    how: [
-      "Tap Open",
-      "Optional: type what to remember",
-      "Tap Try it — demo only, no real timer",
-    ],
-    body: "Looks like a reminder tool. Does not schedule anything. Demo shelf.",
-    demo: "Reminder set… somewhere. Probably. Check back in an hour (or don't).",
-    inputLabel: "Remember what?",
-    inputPlaceholder: "drink water / stretch / forge",
-    runLabel: "Try it",
+    id: "json",
+    n: "JSON Format & Validate",
+    r: "uncommon",
+    rarity: "uncommon",
+    blurb: "Pretty-print or minify; clear parse errors.",
+    how: ["Paste JSON", "Tap Pretty or Minify", "Fix errors from the message"],
+    body: "Format and validate JSON in the lamp. Pretty or compact output. Zero TC.",
+    hint: "Pretty-print or crush JSON and catch parse errors.",
+    tags: ["json", "api", "pretty", "format", "parse", "payload"],
   },
   {
-    id: "spark",
-    n: "Sparkle Dust",
-    r: "free",
-    blurb: "Cosmetic sparkle. Zero stats.",
-    how: ["Tap Open", "Tap Try it", "Enjoy the sparkle text"],
-    body: "Purely decorative. Shows that Try it can fire instantly.",
-    demo: "* sparkle * (purely decorative)",
-    runLabel: "Sparkle",
+    id: "diff",
+    n: "Text Diff",
+    r: "uncommon",
+    rarity: "uncommon",
+    blurb: "Two panes, line-level added / removed highlight.",
+    how: ["Paste left and right text", "Tap Diff", "Read added (+) and removed (−) lines"],
+    body: "Simple line-level compare for drafts and configs. Zero TC.",
+    hint: "Compare two drafts line by line and spot what changed.",
+    tags: ["compare", "draft", "diff", "lines"],
   },
   {
-    id: "compass",
-    n: "Soft Compass",
-    r: "free",
-    blurb: "Points vaguely toward the Forge.",
-    how: ["Tap Open", "Tap Try it", "Read the silly bearing"],
-    body: "Not navigation. A demo compass that always leans lampward.",
-    demo: "Bearing: toward the forge. Confidence: soft.",
-    runLabel: "Take a bearing",
+    id: "units",
+    n: "Unit Convert",
+    r: "uncommon",
+    rarity: "uncommon",
+    blurb: "Length, mass, and temperature common pairs.",
+    how: ["Pick a category and units", "Enter a value", "Read the converted result"],
+    body: "Everyday unit conversions without leaving the shelf. Zero TC.",
+    hint: "Convert length, mass, or temperature without leaving the lamp.",
+    tags: ["convert", "measure", "units", "temp"],
   },
   {
-    id: "lullaby",
-    n: "Coil Lullaby",
-    r: "free",
-    blurb: "A tiny text hum. No audio file.",
-    how: ["Tap Open", "Tap Try it", "Read the hum — audio not included"],
-    body: "Pretend sound tool. Text only. Demo shelf.",
-    demo: "mmm… coil… hum… (demo audio not included)",
-    runLabel: "Hum",
+    id: "case",
+    n: "Case Convert",
+    r: "uncommon",
+    rarity: "uncommon",
+    blurb: "lower / UPPER / Title / snake / kebab / camel.",
+    how: ["Paste text", "Tap a case button", "Copy the result"],
+    body: "Six case transforms for identifiers and titles. Zero TC.",
+    hint: "Flip text between lower, UPPER, Title, snake, kebab, and camel.",
+    tags: ["case", "snake", "camel", "kebab", "identifier"],
+  },
+  {
+    id: "regex",
+    n: "Regex Lab",
+    r: "rare",
+    rarity: "rare",
+    blurb: "Pattern, flags, test string — matches and capture groups live.",
+    how: ["Enter pattern and flags", "Paste a test string", "Inspect matches and groups"],
+    body: "Live regex lab with safe try/catch for invalid patterns. Hard to DIY well. Zero TC.",
+    hint: "Test a pattern live and see every match and capture group.",
+    tags: ["regex", "pattern", "match", "test"],
+  },
+  {
+    id: "jwt",
+    n: "JWT Decoder",
+    r: "rare",
+    rarity: "rare",
+    blurb: "Base64url-decode header + payload to pretty JSON (decode only).",
+    how: ["Paste a JWT", "Read header and payload JSON", "Note: decode only, not verified"],
+    body: "Decode JWT segments client-side. No signature verify — labeled decode only. Zero TC.",
+    hint: "Peek inside a token's header and payload — decode only, not verified.",
+    tags: ["token", "jwt", "auth", "security", "decode"],
+  },
+  {
+    id: "csvjson",
+    n: "CSV ↔ JSON",
+    r: "rare",
+    rarity: "rare",
+    blurb: "Detect delimiter, convert either way, download or copy.",
+    how: ["Paste CSV or JSON", "Tap Convert", "Copy or download the result"],
+    body: "Bidirectional CSV/JSON with delimiter detection. A real utility desk. Zero TC.",
+    hint: "Turn a spreadsheet paste into JSON — or the other way around.",
+    tags: ["csv", "data", "table", "json", "spreadsheet"],
+  },
+  {
+    id: "hash",
+    n: "Checksum Desk",
+    r: "rare",
+    rarity: "rare",
+    blurb: "SHA-256 / SHA-1 / SHA-512 via crypto.subtle — hex + copy.",
+    how: ["Paste text", "Pick an algorithm", "Copy the hex digest"],
+    body: "Browser SubtleCrypto digests for pasted text. Hex output ready to paste. Zero TC.",
+    hint: "Fingerprint pasted text with SHA-256 / SHA-1 / SHA-512 and copy the hex.",
+    tags: ["hash", "checksum", "sha", "fingerprint", "security"],
+  },
+  {
+    id: "ics",
+    n: "Meeting ICS Builder",
+    r: "rare",
+    rarity: "rare",
+    blurb: "Title, start/end, location → downloadable .ics file.",
+    how: ["Fill title, times, location", "Tap Download .ics", "Open in your calendar app"],
+    body: "Build a floating/UTC-friendly ICS invite in one pass. Zero TC.",
+    hint: "Build a meeting invite file your calendar app can open.",
+    tags: ["calendar", "meeting", "invite", "schedule", "ics"],
+  },
+  {
+    id: "cron",
+    n: "Cron Explainer",
+    r: "rare",
+    rarity: "rare",
+    blurb: "Parse 5-field cron into plain English + next fire times.",
+    how: ["Paste a 5-field cron", "Read the English summary", "Check the next five estimates"],
+    body: "Cron that actually explains itself — hard to DIY cleanly. Zero TC.",
+    hint: "Translate a 5-field schedule into plain English and next fire times.",
+    tags: ["cron", "schedule", "workflow", "timer"],
   },
 ];
 
-export type Tool = { n: string; r: string; t: number; freeId?: string };
+/** Legacy freeIds from earlier shelves → current catalog ids. */
+export const FREE_TOOL_ALIASES: Record<string, string> = {
+  "paste-cleaner": "paste",
+  "focus-timer": "timer",
+  "quick-checklist": "check",
+};
+
+export function resolveFreeToolId(id: string) {
+  return FREE_TOOL_ALIASES[id] || id;
+}
+
+export function getFreeTool(id: string | undefined) {
+  if (!id) return undefined;
+  return FREE_TOOLS.find((x) => x.id === resolveFreeToolId(id));
+}
+
+/** Pick which runnable free tool a first forge should land. */
+export function pickFirstForgeTool(need: string) {
+  const t = need.toLowerCase();
+  const byId = (id: string) => FREE_TOOLS.find((x) => x.id === id)!;
+  if (/clean|paste|url|track|utm|whitelist|strip/.test(t)) return byId("paste");
+  if (/timer|focus|pomodoro|countdown|clock|minute/.test(t)) return byId("timer");
+  if (/check|list|todo|task|item/.test(t)) return byId("check");
+  if (/word|char|count/.test(t)) return byId("words");
+  if (/json/.test(t)) return byId("json");
+  if (/diff|compare/.test(t)) return byId("diff");
+  if (/unit|convert|celsius|fahrenheit/.test(t)) return byId("units");
+  if (/case|snake|kebab|camel/.test(t)) return byId("case");
+  if (/regex|regexp/.test(t)) return byId("regex");
+  if (/jwt|token/.test(t)) return byId("jwt");
+  if (/csv/.test(t)) return byId("csvjson");
+  if (/hash|sha|checksum/.test(t)) return byId("hash");
+  if (/ics|calendar|meeting|invite/.test(t)) return byId("ics");
+  if (/cron|schedule/.test(t)) return byId("cron");
+  return byId("check");
+}
+
+export type ProcessPack = {
+  id: string;
+  n: string;
+  cost: number;
+  /** Outcome-first process copy — not a shopping list of tool names. */
+  process: string;
+  toolIds: string[];
+  /** Honest ala-carte reference (market seed ~24 TC each). */
+  alaCarte: number;
+};
+
+export const PROCESS_PACKS: ProcessPack[] = [
+  {
+    id: "clean-desk",
+    n: "Clean Desk",
+    cost: 40,
+    process: "Paste messy links → clean text → park tasks → timed focus block.",
+    toolIds: ["paste", "check", "timer"],
+    alaCarte: 72,
+  },
+  {
+    id: "data-prep",
+    n: "Data Prep",
+    cost: 65,
+    process: "Turn spreadsheet dumps into clean JSON, validate, fingerprint.",
+    toolIds: ["csvjson", "json", "hash"],
+    alaCarte: 72,
+  },
+  {
+    id: "ship-guard",
+    n: "Ship Guard",
+    cost: 75,
+    process: "Test patterns, decode tokens, checksum the payload before you ship.",
+    toolIds: ["regex", "jwt", "hash"],
+    alaCarte: 72,
+  },
+  {
+    id: "meeting-runner",
+    n: "Meeting Runner",
+    cost: 50,
+    process: "Build the invite file, checklist the agenda, run the pre-call timer.",
+    toolIds: ["ics", "check", "timer"],
+    alaCarte: 72,
+  },
+];
+
+export function getProcessPack(id: string | undefined) {
+  if (!id) return undefined;
+  return PROCESS_PACKS.find((p) => p.id === id);
+}
+
+/** Curated + context-scored Nearby ideas (does-lines only, no tool names). */
+export function pickNearbyHints(
+  rarity: ToolRarity,
+  contextText = "",
+  limit = 3
+): { id: string; hint: string }[] {
+  const ctx = contextText.toLowerCase();
+  const pool = FREE_TOOLS.filter((t) => t.rarity === rarity);
+  const scored = pool.map((t) => {
+    let score = 1;
+    for (const tag of t.tags) {
+      if (ctx.includes(tag)) score += 3;
+    }
+    if (/json|api|payload|script/.test(ctx) && t.tags.includes("json")) score += 2;
+    if (/list|todo|check|agenda/.test(ctx) && t.tags.includes("list")) score += 2;
+    if (
+      /security|token|hash|auth/.test(ctx) &&
+      (t.tags.includes("security") ||
+        t.tags.includes("hash") ||
+        t.tags.includes("token"))
+    )
+      score += 2;
+    if (
+      /schedule|meeting|calendar|cron/.test(ctx) &&
+      (t.tags.includes("schedule") || t.tags.includes("meeting") || t.tags.includes("cron"))
+    )
+      score += 2;
+    return { id: t.id, hint: t.hint, score };
+  });
+  scored.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+  return scored.slice(0, limit).map(({ id, hint }) => ({ id, hint }));
+}
+
+export type Tool = { n: string; r: string; t: number; freeId?: string; forgeId?: string; brief?: string; packId?: string };
+
+export function contextFromLibrary(tools: Tool[]): string {
+  return tools
+    .slice(0, 8)
+    .map((t) => `${t.n} ${t.brief || ""} ${t.r}`)
+    .join(" ");
+}
+
+
 export type State = {
   coins: number;
   tools: Tool[];
@@ -194,6 +384,10 @@ export type State = {
   passiveAt: number;
   email?: string;
   ownerGrant?: boolean;
+  /** One-time +500k TC for OWNER_EMAIL */
+  ownerMegaGrant?: boolean;
+  /** Process pack ids already purchased (one-time). */
+  ownedPacks?: string[];
 };
 export type DropBit = {
   id: number;
@@ -226,6 +420,7 @@ export function defaultState(): State {
     tier: "free",
     wishes: 3,
     passiveAt: Date.now(),
+    ownedPacks: [],
   };
 }
 export function normalize(raw: Partial<State> | null): State {
@@ -237,6 +432,8 @@ export function normalize(raw: Partial<State> | null): State {
   if (typeof S.email === "string") S.email = S.email.trim().toLowerCase();
   else delete S.email;
   if (S.ownerGrant == null) S.ownerGrant = false;
+  if (S.ownerMegaGrant == null) S.ownerMegaGrant = false;
+  if (!Array.isArray(S.ownedPacks)) S.ownedPacks = [];
   if (S.day !== today()) {
     S.loss = 0;
     S.earn = 0;
@@ -246,15 +443,16 @@ export function normalize(raw: Partial<State> | null): State {
 }
 export function applyOwnerGrant(S: State): { state: State; granted: boolean } {
   const email = (S.email || "").trim().toLowerCase();
-  if (email !== OWNER_EMAIL.toLowerCase() || S.ownerGrant) {
+  // Mega grant: +500k once for OWNER_EMAIL (separate from any old +1000 ownerGrant).
+  if (email !== OWNER_EMAIL.toLowerCase() || S.ownerMegaGrant) {
     return { state: S, granted: false };
   }
   return {
     state: {
       ...S,
-      email,
       coins: S.coins + OWNER_GRANT,
       ownerGrant: true,
+      ownerMegaGrant: true,
     },
     granted: true,
   };
