@@ -1,15 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FREE_TOOLS,
   HOURLY,
   OWNER_EMAIL,
   PACKS,
   TIERS,
+  getFreeTool,
+  PROCESS_PACKS,
+  pickNearbyHints,
+  contextFromLibrary,
   type Page,
   type State,
+  type ToolRarity,
   goPaypal,
 } from "./constants";
+import { getForgeBlueprint, runForge } from "./forgeBlueprints";
+import { RealToolPanel } from "./RealToolPanel";
 export function ShopPage({
   S,
   msg,
@@ -87,56 +94,125 @@ export function ToolsPage({
   go,
   onDelete,
   addFreeTool,
+  buyProcessPack,
 }: {
   S: State;
   msg: string;
   go: (p: Page) => void;
   onDelete: (index: number) => void;
   addFreeTool: (freeId: string, name: string) => void;
+  buyProcessPack?: (packId: string) => void;
 }) {
-  const [tab, setTab] = useState<"library" | "free">(
+  const [tab, setTab] = useState<"library" | "free" | "packs">(
     S.tools.length ? "library" : "free"
   );
+  const [shelf, setShelf] = useState<ToolRarity | "all">("all");
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [openFree, setOpenFree] = useState<string | null>(null);
   const [tryInput, setTryInput] = useState("");
   const [tryOut, setTryOut] = useState<string | null>(null);
-  const freeTool = FREE_TOOLS.find((t) => t.id === openFree) || null;
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("tg_open_latest") === "1" && S.tools.length) {
+        sessionStorage.removeItem("tg_open_latest");
+        setTab("library");
+        setOpenIdx(0);
+      }
+    } catch {}
+  }, [S.tools.length]);
+  const freeTool = getFreeTool(openFree || undefined) || null;
   const open =
     openIdx != null && openIdx >= 0 && openIdx < S.tools.length
       ? S.tools[openIdx]
       : null;
+  const ctx = contextFromLibrary(S.tools);
+  const ownedPacks = S.ownedPacks || [];
 
-  function runFreeDemo(tool: (typeof FREE_TOOLS)[number]) {
-    const typed = tryInput.trim();
-    if (tool.id === "echo") {
-      setTryOut(
-        "The lamp echoes: \"" + (typed || "hello from the free shelf") + "\""
-      );
-      return;
-    }
-    if (tool.id === "flip" && typed) {
-      setTryOut(
-        "You called " +
-          typed +
-          ". " +
-          tool.demo +
-          " (Still a demo — no TC.)"
-      );
-      return;
-    }
-    if (tool.id === "hourglass" && typed) {
-      setTryOut("Noted: \"" + typed + "\". " + tool.demo);
-      return;
-    }
-    setTryOut(tool.demo);
+  const sections: { id: ToolRarity; title: string; pitch: string }[] = [
+    {
+      id: "common",
+      title: "Common",
+      pitch: "Everyday shelf tools — quick, useful, zero TC.",
+    },
+    {
+      id: "uncommon",
+      title: "Uncommon",
+      pitch: "Medium utilities for drafts, data, and conversions.",
+    },
+    {
+      id: "rare",
+      title: "Rare · hard to DIY",
+      pitch: "Real desks: regex, JWT, CSV, checksums, ICS, cron — not toys.",
+    },
+  ];
+
+  function rarityBadge(r: string) {
+    return <span className={"rarity-badge rarity-" + r}>{r}</span>;
+  }
+
+  function renderNearby(rarity: ToolRarity) {
+    const hints = pickNearbyHints(rarity, ctx, 3);
+    if (!hints.length) return null;
+    return (
+      <aside className="hint-window" aria-label="Nearby ideas">
+        <div className="hint-window-title">Nearby ideas</div>
+        <p className="card-blurb" style={{ marginTop: 0 }}>
+          Soft suggestions from forge wishes and shelf neighbors — what you can
+          get done, not what it is called.
+        </p>
+        <ul className="hint-list">
+          {hints.map((h) => (
+            <li key={h.id}>
+              <button
+                type="button"
+                className="hint-link"
+                onClick={() => {
+                  setOpenFree(h.id);
+                  setTryInput("");
+                  setTryOut(null);
+                }}
+              >
+                {h.hint}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    );
+  }
+
+  function renderShelfList(rarity: ToolRarity) {
+    const list = FREE_TOOLS.filter((t) => t.rarity === rarity);
+    return (
+      <div className="grid" key={rarity}>
+        {list.map((t) => (
+          <div className="row" key={t.id}>
+            <div>
+              <b>{t.n}</b> {rarityBadge(t.rarity)}
+              <div className="card-blurb">{t.blurb}</div>
+              <div className="seal">0 TC</div>
+            </div>
+            <button
+              className="btn open-tool"
+              type="button"
+              onClick={() => {
+                setOpenFree(t.id);
+                setTryInput("");
+                setTryOut(null);
+              }}
+            >
+              Open
+            </button>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (open && openIdx != null) {
     const forged = new Date(open.t).toLocaleString();
-    const linked = open.freeId
-      ? FREE_TOOLS.find((f) => f.id === open.freeId)
-      : null;
+    const linked = open.freeId ? getFreeTool(open.freeId) : null;
+    const forgedBp = open.forgeId ? getForgeBlueprint(open.forgeId) : null;
     return (
       <>
         <p className="seal">UELG:TOOLS_01</p>
@@ -146,7 +222,46 @@ export function ToolsPage({
           <p className="seal">
             {open.r} · forged {forged}
           </p>
-          {linked ? (
+          {forgedBp ? (
+            <>
+              <h2>What it does</h2>
+              <p className="tool-body">{forgedBp.blurb}</p>
+              {open.brief && (
+                <p className="card-blurb">Wish: {open.brief}</p>
+              )}
+              <h2>How to use</h2>
+              <ol className="howto">
+                {forgedBp.how.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+              <label className="try-label">
+                Input
+                <textarea
+                  value={tryInput}
+                  onChange={(e) => setTryInput(e.target.value)}
+                  placeholder={forgedBp.placeholder}
+                  rows={5}
+                />
+              </label>
+              <button
+                className="btn"
+                type="button"
+                onClick={() =>
+                  setTryOut(
+                    runForge(open.forgeId!, tryInput, open.brief || open.n)
+                  )
+                }
+              >
+                {forgedBp.runLabel || "Try it"}
+              </button>
+              {tryOut && (
+                <pre className="try-out" style={{ whiteSpace: "pre-wrap" }}>
+                  {tryOut}
+                </pre>
+              )}
+            </>
+          ) : linked ? (
             <>
               <h2>What it does</h2>
               <p className="tool-body">{linked.body}</p>
@@ -156,28 +271,13 @@ export function ToolsPage({
                   <li key={step}>{step}</li>
                 ))}
               </ol>
-              {linked.inputLabel && (
-                <label className="try-label">
-                  {linked.inputLabel}
-                  <input
-                    className="email-field"
-                    value={tryInput}
-                    onChange={(e) => setTryInput(e.target.value)}
-                    placeholder={linked.inputPlaceholder || ""}
-                  />
-                </label>
-              )}
-              <button
-                className="btn"
-                type="button"
-                onClick={() => runFreeDemo(linked)}
-              >
-                {linked.runLabel || "Try it"}
-              </button>
-              {tryOut && <p className="try-out">{tryOut}</p>}
+              <RealToolPanel toolId={linked.id} />
             </>
           ) : (
-            <p className="tool-body">{open.n}</p>
+            <p className="tool-body">
+              {open.n} — this shelf item has no runner yet. Forge a new wish for a
+              Try-it tool.
+            </p>
           )}
           <div className="tool-actions">
             <button
@@ -214,7 +314,9 @@ export function ToolsPage({
         <p className="seal">UELG:TOOLS_01 · free shelf</p>
         <h1>{freeTool.n}</h1>
         <div className="tool-panel">
-          <p className="seal">{freeTool.r} · demo</p>
+          <p className="seal">
+            {rarityBadge(freeTool.rarity)} · 0 TC
+          </p>
           <h2>What it does</h2>
           <p className="tool-body">{freeTool.body}</p>
           <p className="card-blurb">{freeTool.blurb}</p>
@@ -224,31 +326,8 @@ export function ToolsPage({
               <li key={step}>{step}</li>
             ))}
           </ol>
-          {freeTool.inputLabel && (
-            <label className="try-label">
-              {freeTool.inputLabel}
-              <input
-                className="email-field"
-                value={tryInput}
-                onChange={(e) => setTryInput(e.target.value)}
-                placeholder={freeTool.inputPlaceholder || ""}
-              />
-            </label>
-          )}
-          <button
-            className="btn"
-            type="button"
-            onClick={() => runFreeDemo(freeTool)}
-          >
-            {freeTool.runLabel || "Try it"}
-          </button>
-          {tryOut && <p className="try-out">{tryOut}</p>}
-          {!tryOut && (
-            <p className="note">
-              Tap <b>{freeTool.runLabel || "Try it"}</b> above — that runs the
-              demo. No TC spent.
-            </p>
-          )}
+          <h2>Run</h2>
+          <RealToolPanel toolId={freeTool.id} />
           <div className="tool-actions">
             <button
               className="btn ghost"
@@ -294,59 +373,112 @@ export function ToolsPage({
         >
           Free tools
         </button>
+        <button
+          className={"btn" + (tab === "packs" ? "" : " ghost")}
+          type="button"
+          onClick={() => setTab("packs")}
+        >
+          Process packs
+        </button>
       </div>
-      {tab === "free" && (
+      {tab === "packs" && (
         <>
           <div className="howto-card">
-            <h2>How Free tools work</h2>
-            <ol className="howto">
-              <li>Tap a tool below</li>
-              <li>Read what it does</li>
-              <li>Type something if it asks</li>
-              <li>Tap <b>Try it</b> to run the demo</li>
-            </ol>
+            <h2>Process packs</h2>
             <p className="card-blurb">
-              These are demos — they show Open works. They do not spend TC and
-              are not powerful paid tools.
+              Buy a whole workflow for fair TC — priced under à-la-carte Market
+              seeds (~24 TC each), without a casino pitch. One purchase per pack.
             </p>
           </div>
           <div className="grid">
-            {FREE_TOOLS.map((t) => (
-              <div className="row" key={t.id}>
-                <div>
-                  <b>{t.n}</b>
-                  <div className="card-blurb">{t.blurb}</div>
+            {PROCESS_PACKS.map((p) => {
+              const owned = ownedPacks.includes(p.id);
+              const save = Math.max(0, p.alaCarte - p.cost);
+              return (
+                <div className="row pack-card" key={p.id}>
+                  <div>
+                    <b>{p.n}</b>
+                    <div className="card-blurb">{p.process}</div>
+                    <div className="seal">
+                      {p.cost} TC · ~{p.toolIds.length} tools
+                      {save > 0 ? ` · saves ~${save} TC vs one-by-one` : ""}
+                    </div>
+                  </div>
+                  <button
+                    className={"btn" + (owned ? " ghost" : "")}
+                    type="button"
+                    disabled={owned || !buyProcessPack}
+                    onClick={() => buyProcessPack && buyProcessPack(p.id)}
+                  >
+                    {owned ? "Owned" : "Unlock " + p.cost + " TC"}
+                  </button>
                 </div>
-                <button
-                  className="btn open-tool"
-                  type="button"
-                  onClick={() => {
-                    setOpenFree(t.id);
-                    setTryInput("");
-                    setTryOut(null);
-                  }}
-                >
-                  Open
-                </button>
-              </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+      {tab === "free" && (
+        <>
+          <div className="howto-card">
+            <h2>Free shelf</h2>
+            <ol className="howto">
+              <li>Pick Common, Uncommon, or Rare</li>
+              <li>Open a tool and run it here</li>
+              <li>Add keepers to your library — still 0 TC</li>
+            </ol>
+            <p className="card-blurb">
+              Quality tiers, not a paywall. Rare tools are hard to DIY — real
+              utilities on the lamp.
+            </p>
+          </div>
+          <div className="hilo-bets" style={{ marginBottom: 12 }}>
+            <button
+              className={"btn" + (shelf === "all" ? "" : " ghost")}
+              type="button"
+              onClick={() => setShelf("all")}
+            >
+              All
+            </button>
+            {sections.map((s) => (
+              <button
+                key={s.id}
+                className={"btn" + (shelf === s.id ? "" : " ghost")}
+                type="button"
+                onClick={() => setShelf(s.id)}
+              >
+                {s.id === "rare" ? "Rare" : s.title}
+              </button>
             ))}
           </div>
+          {(shelf === "all" ? sections : sections.filter((s) => s.id === shelf)).map(
+            (s) => (
+              <div key={s.id} className="shelf-section">
+                <h2>
+                  {s.title} {rarityBadge(s.id)}
+                </h2>
+                <p className="card-blurb">{s.pitch}</p>
+                {renderNearby(s.id)}
+                {renderShelfList(s.id)}
+              </div>
+            )
+          )}
         </>
       )}
       {tab === "library" && (
         <>
           {!S.tools.length ? (
             <>
-              <p>Your library is empty. Start with a Free tool demo.</p>
+              <p>Your library is empty. Start with a Free tool or a Process pack.</p>
               <div className="grid">
                 <button className="btn" type="button" onClick={() => setTab("free")}>
                   Browse Free tools
                 </button>
+                <button className="btn ghost" type="button" onClick={() => setTab("packs")}>
+                  Process packs
+                </button>
                 <button className="btn ghost" type="button" onClick={() => go("forge")}>
                   Go Forge
-                </button>
-                <button className="btn ghost" type="button" onClick={() => go("market")}>
-                  Go Market
                 </button>
               </div>
             </>
