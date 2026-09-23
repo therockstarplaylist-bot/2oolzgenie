@@ -65,6 +65,9 @@ export default function GenieApp() {
     claimLamp,
     deleteTool,
     addFreeTool,
+    buyProcessPack,
+    buyNudge,
+    dismissBuyNudge,
     hilo,
     face52,
     extra,
@@ -106,6 +109,37 @@ export default function GenieApp() {
         ))}
       </nav>
       <main>
+      {buyNudge && (
+        <div className="buy-nudge" role="status">
+          <p>{buyNudge}</p>
+          <div className="tool-actions">
+            <button className="btn ghost" type="button" onClick={dismissBuyNudge}>
+              Dismiss
+            </button>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => {
+                dismissBuyNudge();
+                go("shop");
+              }}
+            >
+              Open Shop
+            </button>
+            <button
+              className="btn ghost"
+              type="button"
+              onClick={() => {
+                dismissBuyNudge();
+                go("tools");
+              }}
+            >
+              Process packs
+            </button>
+          </div>
+        </div>
+      )}
+
         {S.page === "forge" && (
           <ForgePage
             S={S}
@@ -160,6 +194,7 @@ export default function GenieApp() {
             go={go}
             onDelete={deleteTool}
             addFreeTool={addFreeTool}
+            buyProcessPack={buyProcessPack}
           />
         )}
         {S.page === "shop" && (
