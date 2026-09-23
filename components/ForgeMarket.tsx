@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  FORGE,
   SEED,
   TEASE,
   type State,
@@ -53,6 +54,9 @@ export function ForgePage({
     <>
       <p className="seal">UELG:FORGE_01 · UELG:EASE_01</p>
       <h1>Describe the tool you need...</h1>
+      <p className="note">
+        Forge matches your wish to a real mini-tool you can Open and Try in Tools.
+      </p>
       <p className="drip">
         +{hourly} TC / hour · {S.wishes} wishes
       </p>
@@ -69,7 +73,7 @@ export function ForgePage({
       />
       <p className="msg">{msg}</p>
       <button className="btn" type="button" onClick={onForge}>
-        Forge · 28 TC
+        Forge · {FORGE} TC
       </button>
     </>
   );
