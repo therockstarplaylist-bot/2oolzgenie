@@ -13,6 +13,7 @@ import {
 } from "./GeniePages";
 import { useCloudLampStandalone } from "./useCloudLampStandalone";
 import { useGenie } from "./useGenie";
+import { WanderingLamp } from "./WanderingLamp";
 
 export default function GenieApp() {
   const g = useGenie();
@@ -56,6 +57,9 @@ export default function GenieApp() {
     go,
     onForge,
     onMarketBuy,
+    onWishBuy,
+    onWishPackBuy,
+    installWishPackTool,
     play,
     onDropClick,
     startHang,
@@ -140,7 +144,16 @@ export default function GenieApp() {
         </div>
       )}
 
-        {S.page === "forge" && (
+        <WanderingLamp
+        onOpenWish={(id) => {
+          try {
+            sessionStorage.setItem("tg_scout_wish", id);
+          } catch {}
+          go("market");
+          setMsg("Scout pointed at Market · " + id);
+        }}
+      />
+      {S.page === "forge" && (
           <ForgePage
             S={S}
             msg={msg}
@@ -154,7 +167,7 @@ export default function GenieApp() {
           />
         )}
         {S.page === "market" && (
-          <MarketPage S={S} msg={msg} tick={tick} onMarketBuy={onMarketBuy} />
+          <MarketPage S={S} msg={msg} tick={tick} onMarketBuy={onMarketBuy} onWishBuy={onWishBuy} onWishPackBuy={onWishPackBuy} />
         )}
         {S.page === "casino" && (
           <CasinoPage
@@ -195,6 +208,8 @@ export default function GenieApp() {
             onDelete={deleteTool}
             addFreeTool={addFreeTool}
             buyProcessPack={buyProcessPack}
+            installWishPackTool={installWishPackTool}
+            onWishBuy={onWishBuy}
           />
         )}
         {S.page === "shop" && (
