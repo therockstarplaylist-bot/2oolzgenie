@@ -1,5 +1,5 @@
 "use client";
-import { getWishPack, getWishTool } from "./wishCatalog";
+import { getWishPack, getWishTool } from "./wishLookup";
 import type { State } from "./constants";
 
 type Deps = {

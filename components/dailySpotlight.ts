@@ -1,6 +1,6 @@
 /** Daily Lamp spotlight + One Free Wish Friday — America/Los_Angeles. */
 
-import { WISH_TOOLS, type WishTool } from "./wishCatalog";
+import { WISH_TOOLS, type WishTool } from "./wishLookup";
 
 export const USER_TZ = "America/Los_Angeles";
 
@@ -30,7 +30,7 @@ export function laParts(d = new Date()) {
   });
   const parts = fmt.formatToParts(d);
   const get = (t: string) => parts.find((p) => p.type === t)?.value || "";
-  const weekday = get("weekday");
+  const weekday = get("weekday"); // Sun Mon …
   const y = get("year");
   const m = get("month");
   const day = get("day");
@@ -41,10 +41,15 @@ export function isFridayLA(d = new Date()) {
   return laParts(d).weekday === "Fri";
 }
 
+/** ISO-ish week key in LA for once-per-Friday claim (YYYY-Www). */
 export function fridayWeekKey(d = new Date()) {
   const { dateKey } = laParts(d);
+  // Use Thursday of the LA calendar week containing dateKey for stable week id
   const [y, m, day] = dateKey.split("-").map(Number);
-  const utc = Date.UTC(y, m - 1, day, 20, 0, 0);
+  // Approximate: build UTC noon then find LA Friday week via day-of-year bucket
+  const utc = Date.UTC(y, m - 1, day, 20, 0, 0); // ~noon PT-ish
+  const tmp = new Date(utc);
+  // Day of year in LA
   const start = Date.UTC(y, 0, 1, 20, 0, 0);
   const doy = Math.floor((utc - start) / 86400000) + 1;
   const week = Math.ceil(doy / 7);
@@ -54,7 +59,13 @@ export function fridayWeekKey(d = new Date()) {
 export function nextFridayLabel(d = new Date()) {
   const parts = laParts(d);
   const map: Record<string, number> = {
-    Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
   };
   const dow = map[parts.weekday] ?? 0;
   const add = dow === 5 ? 0 : (5 - dow + 7) % 7;
@@ -76,6 +87,7 @@ export function getDailySpotlight(d = new Date()) {
   return pool[idx];
 }
 
+/** Friday free unlock target — today's spotlight if it's a rare ≥500, else first whoa. */
 export function getFridayWishId(d = new Date()): string {
   const spot = getDailySpotlight(d);
   const meta = WISH_TOOLS.find((t) => t.id === spot.id);
