@@ -7,7 +7,7 @@ import "./auth.css";
 export const metadata: Metadata = {
   title: "2oolz Genie",
   description:
-    "Forge a tool. Three free wishes. Coins drip every hour. Pay with card via PayPal.",
+    "Forge real mini-tools. Stego, spectrogram, waveform whoa rares. One Free Wish Friday (PT). Invite friends.",
 };
 
 export const viewport: Viewport = {
