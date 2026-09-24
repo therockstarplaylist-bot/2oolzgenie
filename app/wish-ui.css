@@ -9,3 +9,19 @@
 .djinn-card{border-color:#6e5ea8;}
 .rarity-djinn{color:#c4b5fd;border-color:#6e5ea8;background:#1a1628;}
 @media (max-width:520px){.wandering-lamp{left:12px!important;right:12px;width:auto;top:auto!important;bottom:72px;}}
+
+.lamp-daily-badge,.lamp-friday-badge{margin-left:6px;padding:1px 6px;border-radius:999px;font-size:.6rem;letter-spacing:.08em;border:1px solid var(--coin);color:var(--coin);}
+.lamp-friday-badge{border-color:#6e5ea8;color:#c4b5fd;}
+.wandering-meta{margin:4px 0 0;font-family:ui-monospace,Menlo,monospace;font-size:.65rem;color:var(--su);letter-spacing:.04em;}
+.friday-banner{border:1px dashed var(--ln);border-radius:12px;background:var(--el);padding:14px 16px;margin:12px 0;}
+.friday-banner.friday-on{border-style:solid;border-color:var(--coin);background:#241e10;}
+.brag-strip{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px;}
+.brag-chip{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--ln);background:var(--sf);color:var(--fg);font-size:.75rem;}
+.whoa-card{border-color:rgba(201,162,39,.55);}
+.whoa-badge{color:#f0d78c;border-color:#c9a227;background:#2a2210;}
+.share-card-box{border:1px solid var(--accent);border-radius:12px;background:var(--sf);padding:12px 14px;margin:12px 0;}
+.share-canvas-hidden{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;}
+.invite-box{border:1px solid var(--coin);border-radius:12px;background:var(--sf);padding:14px 16px;margin:10px 0 16px;}
+.palette-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin:12px 0;}
+.palette-swatch{min-height:64px;border:1px solid var(--ln);border-radius:10px;display:flex;align-items:flex-end;justify-content:center;padding:6px;cursor:pointer;font:inherit;}
+.palette-swatch span{background:#0a0b0dcc;color:var(--fg);font-family:ui-monospace,Menlo,monospace;font-size:.7rem;padding:2px 6px;border-radius:6px;}

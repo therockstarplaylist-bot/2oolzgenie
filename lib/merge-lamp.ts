@@ -44,5 +44,13 @@ export function mergeLampStates(local: State, cloud: State | null): State {
     loss: Math.max(Number(local.loss) || 0, Number(cloud.loss) || 0),
     earn: Math.max(Number(local.earn) || 0, Number(cloud.earn) || 0),
     page: local.page || cloud.page,
+    fridayClaimWeek: local.fridayClaimWeek || cloud.fridayClaimWeek,
+    inviteCode: local.inviteCode || cloud.inviteCode,
+    referredBy: local.referredBy || cloud.referredBy,
+    inviteClaimed: Boolean(local.inviteClaimed || cloud.inviteClaimed),
+    freeForge: Math.max(Number(local.freeForge) || 0, Number(cloud.freeForge) || 0),
+    ownedPacks: Array.from(
+      new Set([...(cloud.ownedPacks || []), ...(local.ownedPacks || [])])
+    ),
   });
 }
