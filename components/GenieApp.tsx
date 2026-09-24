@@ -28,7 +28,7 @@ import {
 import { useCloudLampStandalone } from "./useCloudLampStandalone";
 import { useGenie } from "./useGenie";
 import { WanderingLamp } from "./WanderingLamp";
-import { getWishPack, getWishTool } from "./wishCatalog";
+import { getWishPack, getWishTool } from "./wishLookup";
 
 export default function GenieApp() {
   const g = useGenie();
@@ -137,7 +137,6 @@ export default function GenieApp() {
       return;
     }
     if (state.tools.some((t) => t.freeId === wish.id)) {
-      // Still mark claimed so they don't double-dip another Friday tool? Spec: one unlock per Friday.
       state = { ...state, fridayClaimWeek: week };
       save(state);
       g.setMsg("You already own " + wish.n + ". Friday claim marked.");
