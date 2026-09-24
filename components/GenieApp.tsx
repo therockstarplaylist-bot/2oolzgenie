@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AuthControls } from "./AuthControls";
-import { PAGES, load, normalize, save } from "./constants";
+import { PAGES } from "./constants";
+import { load, normalize, save } from "./LampState";
 import {
   ArcadePage,
   CasinoPage,
@@ -35,10 +36,8 @@ export default function GenieApp() {
   const [spotlightId, setSpotlightId] = useState<string | null>(null);
   const dailyId = useMemo(() => getDailySpotlight().id, []);
 
-  // Invite redeem + scout deep-link once ready
   useEffect(() => {
     if (!g.ready) return;
-    // Ensure invite code exists on this lamp
     try {
       const code = ensureInviteCode();
       let state = normalize(load());
@@ -277,7 +276,7 @@ export default function GenieApp() {
     extra,
   } = g;
 
-  const myInvite = S.inviteCode || ensureInviteCode();
+  const myInvite = (S as { inviteCode?: string }).inviteCode || ensureInviteCode();
 
   return (
     <>
