@@ -1,12 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   FORGE,
   SEED,
   TEASE,
   type State,
 } from "./constants";
+import {
+  FRIDAY_RULES,
+  fridayWeekKey,
+  getDailySpotlight,
+  getFridayWishId,
+  getWishMeta,
+  isFridayLA,
+  nextFridayLabel,
+} from "./dailySpotlight";
 import { DJINN_TOOLS, WISH_PACKS, WISH_TOOLS } from "./wishCatalog";
+
+const WHOA_IDS = ["stego", "spectro", "stegoverify", "waveform", "glitch", "palift", "jsongate", "jsonpatch"];
 
 export function Carousel({ tick }: { tick: number }) {
   const i = Math.floor(tick / 30000) % TEASE.length;
@@ -51,21 +63,34 @@ export function ForgePage({
   tick: number;
   onForge: () => void;
 }) {
+  const spot = getDailySpotlight();
+  const meta = getWishMeta(spot.id);
   return (
     <>
       <p className="seal">UELG:FORGE_01 · UELG:EASE_01</p>
       <h1>Describe the tool you need...</h1>
       <p className="note">
         Forge matches your wish to a real mini-tool you can Open and Try in Tools.
+        Market whoa: Stego Drop, Spectrogram Whisper, Waveform Stamp, Channel Glitch —
+        offline runners, honest TC prices.
       </p>
       <p className="drip">
         +{hourly} TC / hour · {S.wishes} wishes
+        {S.freeForge ? ` · ${S.freeForge} free forge` : ""}
       </p>
       {lastDrip > 0 && (
         <p className="msg ok">
           The lamp paid +{lastDrip} TC while you were away.
         </p>
       )}
+      <div className="brag-strip">
+        <span className="brag-chip">Stego · LSB PNG hide/extract</span>
+        <span className="brag-chip">Spectro · audio → PNG whisper</span>
+        <span className="brag-chip">
+          Today · {meta?.n || spot.id}
+          {meta ? ` · ${meta.cost} TC` : ""}
+        </span>
+      </div>
       <Carousel tick={tick} />
       <textarea
         value={need}
@@ -74,7 +99,7 @@ export function ForgePage({
       />
       <p className="msg">{msg}</p>
       <button className="btn" type="button" onClick={onForge}>
-        Forge · {FORGE} TC
+        Forge · {S.freeForge && S.freeForge > 0 ? "free" : FORGE + " TC"}
       </button>
     </>
   );
@@ -87,6 +112,7 @@ export function MarketPage({
   onMarketBuy,
   onWishBuy,
   onWishPackBuy,
+  onFridayClaim,
   spotlightId,
 }: {
   S: State;
@@ -95,12 +121,31 @@ export function MarketPage({
   onMarketBuy: (name: string) => void;
   onWishBuy?: (id: string) => void;
   onWishPackBuy?: (packId: string) => void;
+  onFridayClaim?: () => void;
   spotlightId?: string | null;
 }) {
   const ownedIds = new Set(
     S.tools.map((t) => t.freeId).filter(Boolean) as string[]
   );
   const ownedPacks = S.ownedPacks || [];
+  const friday = isFridayLA();
+  const fridayId = getFridayWishId();
+  const fridayMeta = getWishMeta(fridayId);
+  const daily = getDailySpotlight();
+  const dailyMeta = getWishMeta(daily.id);
+  const claimed = S.fridayClaimWeek === fridayWeekKey();
+  const activeSpotlight = spotlightId || daily.id;
+
+  useEffect(() => {
+    if (!activeSpotlight) return;
+    const el = document.querySelector(`[data-wish-id="${activeSpotlight}"]`);
+    if (el && "scrollIntoView" in el) {
+      (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [activeSpotlight]);
+
+  const whoa = WISH_TOOLS.filter((w) => WHOA_IDS.includes(w.id));
+  const rest = WISH_TOOLS.filter((w) => !WHOA_IDS.includes(w.id));
 
   return (
     <>
@@ -108,18 +153,101 @@ export function MarketPage({
       <h1>Market</h1>
       <p className="note">
         Genie&apos;s rarest wishes — real offline runners, priced honestly in TC.
-        No jailbreak desks.
+        No jailbreak desks. No fake metrics.
       </p>
+
+      <div className={"friday-banner" + (friday ? " friday-on" : "")}>
+        <p className="seal">One Free Wish Friday · America/Los_Angeles</p>
+        {friday ? (
+          <>
+            <p className="card-blurb">
+              Today is Friday. Unlock <b>{fridayMeta?.n || fridayId}</b> once for 0 TC
+              {fridayMeta ? ` (normally ${fridayMeta.cost} TC)` : ""}. One claim per Friday week.
+            </p>
+            <button
+              className="btn"
+              type="button"
+              disabled={
+                !onFridayClaim ||
+                ownedIds.has(fridayId) ||
+                claimed
+              }
+              onClick={() => onFridayClaim && onFridayClaim()}
+            >
+              {ownedIds.has(fridayId)
+                ? "Already owned"
+                : claimed
+                  ? "Already claimed this Friday"
+                  : "Claim free · " + (fridayMeta?.n || fridayId)}
+            </button>
+          </>
+        ) : (
+          <p className="card-blurb">
+            Not Friday in PT. Next Free Wish Friday · <b>{nextFridayLabel()}</b>.
+            Today&apos;s paid spotlight: <b>{dailyMeta?.n || daily.id}</b>
+            {dailyMeta ? ` · ${dailyMeta.cost} TC` : ""}. {FRIDAY_RULES}
+          </p>
+        )}
+      </div>
+
+      <div className="brag-strip">
+        <span className="brag-chip">Stego Drop · hide UTF-8 in PNG</span>
+        <span className="brag-chip">Spectrogram Whisper · audio → PNG</span>
+        <span className="brag-chip">Waveform Stamp · shareable</span>
+        <span className="brag-chip">Channel Glitch · RGB whoa</span>
+      </div>
+
+      <p className="drip">
+        Daily Lamp spotlight · {dailyMeta?.n || daily.id}
+        {dailyMeta ? ` · ${dailyMeta.cost} TC` : ""} · rotates each PT day
+      </p>
+
       <Carousel tick={tick} />
 
-      <h2>Rare wishes</h2>
+      <h2>Whoa rares</h2>
+      <p className="card-blurb">
+        Demoable desks worth bragging about — stego, spectro, glitch, schema, patch.
+      </p>
       <div className="grid">
-        {WISH_TOOLS.map((w) => {
+        {whoa.map((w) => {
           const owned = ownedIds.has(w.id);
           return (
             <div
               className={
-                "row" + (spotlightId === w.id ? " wish-spotlight" : "")
+                "row whoa-card" +
+                (activeSpotlight === w.id ? " wish-spotlight" : "")
+              }
+              key={w.id}
+              data-wish-id={w.id}
+            >
+              <div>
+                <b>{w.n}</b>{" "}
+                <span className="rarity-badge rarity-rare">rare</span>{" "}
+                <span className="rarity-badge whoa-badge">whoa</span>
+                <div className="card-blurb">{w.blurb}</div>
+                <div className="seal">{w.cost} TC</div>
+              </div>
+              <button
+                className={"btn" + (owned ? " ghost" : "")}
+                type="button"
+                disabled={owned || !onWishBuy}
+                onClick={() => onWishBuy && onWishBuy(w.id)}
+              >
+                {owned ? "Owned" : "Buy · " + w.cost + " TC"}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <h2>Rare wishes</h2>
+      <div className="grid">
+        {rest.map((w) => {
+          const owned = ownedIds.has(w.id);
+          return (
+            <div
+              className={
+                "row" + (activeSpotlight === w.id ? " wish-spotlight" : "")
               }
               key={w.id}
               data-wish-id={w.id}
@@ -155,7 +283,7 @@ export function MarketPage({
             <div
               className={
                 "row djinn-card" +
-                (spotlightId === w.id ? " wish-spotlight" : "")
+                (activeSpotlight === w.id ? " wish-spotlight" : "")
               }
               key={w.id}
               data-wish-id={w.id}
