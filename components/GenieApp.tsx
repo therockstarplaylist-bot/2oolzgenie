@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { AuthControls } from "./AuthControls";
-import { PAGES } from "./constants";
+import { PAGES, load, normalize, save } from "./constants";
 import {
   ArcadePage,
   CasinoPage,
@@ -11,15 +12,79 @@ import {
   ShopPage,
   ToolsPage,
 } from "./GeniePages";
+import {
+  fridayWeekKey,
+  getDailySpotlight,
+  getFridayWishId,
+  isFridayLA,
+} from "./dailySpotlight";
+import {
+  INVITE_TC,
+  ensureInviteCode,
+  inviteUrl,
+  readInviteFromUrl,
+  stripInviteFromUrl,
+} from "./inviteLoop";
 import { useCloudLampStandalone } from "./useCloudLampStandalone";
 import { useGenie } from "./useGenie";
-import { getWishPack, getWishTool } from "./wishCatalog";
-import { load, normalize, save } from "./constants";
 import { WanderingLamp } from "./WanderingLamp";
+import { getWishPack, getWishTool } from "./wishCatalog";
 
 export default function GenieApp() {
   const g = useGenie();
-  // Client-side wish market (load/save) — works even if useGenie lacks handlers yet.
+  const [spotlightId, setSpotlightId] = useState<string | null>(null);
+  const dailyId = useMemo(() => getDailySpotlight().id, []);
+
+  // Invite redeem + scout deep-link once ready
+  useEffect(() => {
+    if (!g.ready) return;
+    // Ensure invite code exists on this lamp
+    try {
+      const code = ensureInviteCode();
+      let state = normalize(load());
+      if (!state.inviteCode) {
+        state = { ...state, inviteCode: code };
+        save(state);
+      }
+    } catch {}
+
+    const invite = readInviteFromUrl();
+    if (invite) {
+      let state = normalize(load());
+      const mine = (state.inviteCode || ensureInviteCode()).toUpperCase();
+      if (state.inviteClaimed) {
+        g.setMsg("Invite already claimed on this lamp.");
+      } else if (invite === mine) {
+        g.setMsg("Cannot redeem your own invite.");
+      } else {
+        state = {
+          ...state,
+          coins: state.coins + INVITE_TC,
+          referredBy: invite,
+          inviteClaimed: true,
+          freeForge: (state.freeForge || 0) + 1,
+          inviteCode: state.inviteCode || ensureInviteCode(),
+        };
+        save(state);
+        g.setMsg(
+          `Invite redeemed · +${INVITE_TC} TC · +1 free forge. Refreshing…`
+        );
+        stripInviteFromUrl();
+        setTimeout(() => location.reload(), 400);
+        return;
+      }
+      stripInviteFromUrl();
+    }
+
+    try {
+      const scout = sessionStorage.getItem("tg_scout_wish");
+      if (scout) {
+        sessionStorage.removeItem("tg_scout_wish");
+        setSpotlightId(scout);
+      }
+    } catch {}
+  }, [g.ready]);
+
   const onWishBuy = (wishId: string) => {
     const wish = getWishTool(wishId);
     if (!wish) {
@@ -53,6 +118,51 @@ export default function GenieApp() {
     g.setMsg("Unlocked · " + wish.n + " · " + wish.cost + " TC.");
     location.reload();
   };
+
+  const onFridayClaim = () => {
+    if (!isFridayLA()) {
+      g.setMsg("Free Wish Friday only runs Friday in America/Los_Angeles.");
+      return;
+    }
+    const wishId = getFridayWishId();
+    const wish = getWishTool(wishId);
+    if (!wish) {
+      g.setMsg("Friday wish missing.");
+      return;
+    }
+    let state = normalize(load());
+    const week = fridayWeekKey();
+    if (state.fridayClaimWeek === week) {
+      g.setMsg("Already claimed this Friday week (" + week + ").");
+      return;
+    }
+    if (state.tools.some((t) => t.freeId === wish.id)) {
+      // Still mark claimed so they don't double-dip another Friday tool? Spec: one unlock per Friday.
+      state = { ...state, fridayClaimWeek: week };
+      save(state);
+      g.setMsg("You already own " + wish.n + ". Friday claim marked.");
+      location.reload();
+      return;
+    }
+    state = {
+      ...state,
+      fridayClaimWeek: week,
+      tools: [
+        {
+          n: wish.n,
+          r: "wish",
+          t: Date.now(),
+          freeId: wish.id,
+        },
+        ...state.tools,
+      ],
+      page: "tools",
+    };
+    save(state);
+    g.setMsg("Free Wish Friday · unlocked " + wish.n + " · 0 TC.");
+    location.reload();
+  };
+
   const onWishPackBuy = (packId: string) => {
     const pack = getWishPack(packId);
     if (!pack) {
@@ -78,6 +188,7 @@ export default function GenieApp() {
     g.setMsg("Pack sealed · " + pack.n);
     location.reload();
   };
+
   const installWishPackTool = (packId: string, toolId: string) => {
     const pack = getWishPack(packId);
     if (!pack || !pack.toolIds.includes(toolId)) {
@@ -109,6 +220,7 @@ export default function GenieApp() {
     g.setMsg("Installed · " + meta.n);
     location.reload();
   };
+
   const syncStatus = useCloudLampStandalone();
 
   if (!g.ready) {
@@ -166,6 +278,8 @@ export default function GenieApp() {
     extra,
   } = g;
 
+  const myInvite = S.inviteCode || ensureInviteCode();
+
   return (
     <>
       <header>
@@ -202,47 +316,50 @@ export default function GenieApp() {
         ))}
       </nav>
       <main>
-      {buyNudge && (
-        <div className="buy-nudge" role="status">
-          <p>{buyNudge}</p>
-          <div className="tool-actions">
-            <button className="btn ghost" type="button" onClick={dismissBuyNudge}>
-              Dismiss
-            </button>
-            <button
-              className="btn"
-              type="button"
-              onClick={() => {
-                dismissBuyNudge();
-                go("shop");
-              }}
-            >
-              Open Shop
-            </button>
-            <button
-              className="btn ghost"
-              type="button"
-              onClick={() => {
-                dismissBuyNudge();
-                go("tools");
-              }}
-            >
-              Process packs
-            </button>
+        {buyNudge && (
+          <div className="buy-nudge" role="status">
+            <p>{buyNudge}</p>
+            <div className="tool-actions">
+              <button className="btn ghost" type="button" onClick={dismissBuyNudge}>
+                Dismiss
+              </button>
+              <button
+                className="btn"
+                type="button"
+                onClick={() => {
+                  dismissBuyNudge();
+                  go("shop");
+                }}
+              >
+                Open Shop
+              </button>
+              <button
+                className="btn ghost"
+                type="button"
+                onClick={() => {
+                  dismissBuyNudge();
+                  go("tools");
+                }}
+              >
+                Process packs
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
         <WanderingLamp
-        onOpenWish={(id) => {
-          try {
-            sessionStorage.setItem("tg_scout_wish", id);
-          } catch {}
-          go("market");
-          setMsg("Scout pointed at Market · " + id);
-        }}
-      />
-      {S.page === "forge" && (
+          dailyFreeId={dailyId}
+          fridayActive={isFridayLA()}
+          onOpenWish={(id) => {
+            try {
+              sessionStorage.setItem("tg_scout_wish", id);
+            } catch {}
+            setSpotlightId(id);
+            go("market");
+            setMsg("Scout pointed at Market · " + id);
+          }}
+        />
+        {S.page === "forge" && (
           <ForgePage
             S={S}
             msg={msg}
@@ -256,7 +373,16 @@ export default function GenieApp() {
           />
         )}
         {S.page === "market" && (
-          <MarketPage S={S} msg={msg} tick={tick} onMarketBuy={onMarketBuy} onWishBuy={onWishBuy} onWishPackBuy={onWishPackBuy} />
+          <MarketPage
+            S={S}
+            msg={msg}
+            tick={tick}
+            onMarketBuy={onMarketBuy}
+            onWishBuy={onWishBuy}
+            onWishPackBuy={onWishPackBuy}
+            onFridayClaim={onFridayClaim}
+            spotlightId={spotlightId || dailyId}
+          />
         )}
         {S.page === "casino" && (
           <CasinoPage
@@ -311,6 +437,8 @@ export default function GenieApp() {
             goShop={() => go("shop")}
             claimLamp={claimLamp}
             syncStatus={syncStatus}
+            inviteCode={myInvite}
+            inviteLink={inviteUrl(myInvite)}
           />
         )}
       </main>
