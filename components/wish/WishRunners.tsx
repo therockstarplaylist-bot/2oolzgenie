@@ -24,14 +24,9 @@ import {
   SpecTool,
   DecisionTool,
 } from "./runnersGrok";
-import {
-  StegoVerifyTool,
-  WaveformTool,
-  GlitchTool,
-  JsonGateTool,
-  JsonPatchTool,
-  PaliftTool,
-} from "./runnersWhoa";
+import { StegoVerifyTool } from "./runnersWhoaStego";
+import { WaveformTool, GlitchTool, PaliftTool } from "./runnersWhoaMedia";
+import { JsonGateTool, JsonPatchTool } from "./runnersWhoaJson";
 
 const TAB_RUNNERS: Record<string, () => ReactElement> = {
   memory: MemoryTool,
