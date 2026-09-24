@@ -5,8 +5,8 @@ import {
   FORGE,
   SEED,
   TEASE,
-  type State,
 } from "./constants";
+import type { State } from "./LampState";
 import {
   FRIDAY_RULES,
   fridayWeekKey,
