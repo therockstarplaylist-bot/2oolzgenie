@@ -13,10 +13,102 @@ import {
 } from "./GeniePages";
 import { useCloudLampStandalone } from "./useCloudLampStandalone";
 import { useGenie } from "./useGenie";
+import { getWishPack, getWishTool } from "./wishCatalog";
+import { load, normalize, save } from "./constants";
 import { WanderingLamp } from "./WanderingLamp";
 
 export default function GenieApp() {
   const g = useGenie();
+  // Client-side wish market (load/save) — works even if useGenie lacks handlers yet.
+  const onWishBuy = (wishId: string) => {
+    const wish = getWishTool(wishId);
+    if (!wish) {
+      g.setMsg("Unknown wish.");
+      return;
+    }
+    let state = normalize(load());
+    if (state.tools.some((t) => t.freeId === wish.id)) {
+      g.setMsg("Already unlocked.");
+      return;
+    }
+    if (state.coins < wish.cost) {
+      g.setMsg("Need " + wish.cost + " TC.");
+      return;
+    }
+    state = {
+      ...state,
+      coins: state.coins - wish.cost,
+      tools: [
+        {
+          n: wish.n,
+          r: wish.tier === "djinn" ? "djinn" : "wish",
+          t: Date.now(),
+          freeId: wish.id,
+        },
+        ...state.tools,
+      ],
+      page: "tools",
+    };
+    save(state);
+    g.setMsg("Unlocked · " + wish.n + " · " + wish.cost + " TC.");
+    location.reload();
+  };
+  const onWishPackBuy = (packId: string) => {
+    const pack = getWishPack(packId);
+    if (!pack) {
+      g.setMsg("Unknown pack.");
+      return;
+    }
+    let state = normalize(load());
+    if ((state.ownedPacks || []).includes(pack.id)) {
+      g.setMsg("Already own this pack.");
+      return;
+    }
+    if (state.coins < pack.cost) {
+      g.setMsg("Need " + pack.cost + " TC.");
+      return;
+    }
+    state = {
+      ...state,
+      coins: state.coins - pack.cost,
+      ownedPacks: [...(state.ownedPacks || []), pack.id],
+      page: "tools",
+    };
+    save(state);
+    g.setMsg("Pack sealed · " + pack.n);
+    location.reload();
+  };
+  const installWishPackTool = (packId: string, toolId: string) => {
+    const pack = getWishPack(packId);
+    if (!pack || !pack.toolIds.includes(toolId)) {
+      g.setMsg("Tool not in this pack.");
+      return;
+    }
+    let state = normalize(load());
+    if (!(state.ownedPacks || []).includes(packId)) {
+      g.setMsg("Buy the pack first.");
+      return;
+    }
+    if (state.tools.some((t) => t.freeId === toolId)) {
+      g.setMsg("Already installed.");
+      return;
+    }
+    const meta = getWishTool(toolId);
+    if (!meta) {
+      g.setMsg("Unknown tool.");
+      return;
+    }
+    state = {
+      ...state,
+      tools: [
+        { n: meta.n, r: "wish", t: Date.now(), freeId: toolId, packId },
+        ...state.tools,
+      ],
+    };
+    save(state);
+    g.setMsg("Installed · " + meta.n);
+    location.reload();
+  };
   const syncStatus = useCloudLampStandalone();
 
   if (!g.ready) {
@@ -57,9 +149,6 @@ export default function GenieApp() {
     go,
     onForge,
     onMarketBuy,
-    onWishBuy,
-    onWishPackBuy,
-    installWishPackTool,
     play,
     onDropClick,
     startHang,
