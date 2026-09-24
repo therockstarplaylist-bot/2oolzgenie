@@ -24,6 +24,14 @@ import {
   SpecTool,
   DecisionTool,
 } from "./runnersGrok";
+import {
+  StegoVerifyTool,
+  WaveformTool,
+  GlitchTool,
+  JsonGateTool,
+  JsonPatchTool,
+  PaliftTool,
+} from "./runnersWhoa";
 
 const TAB_RUNNERS: Record<string, () => ReactElement> = {
   memory: MemoryTool,
@@ -54,6 +62,12 @@ const TAB_RUNNERS: Record<string, () => ReactElement> = {
   wishissue: WishIssueTool,
   spec: SpecTool,
   decision: DecisionTool,
+  stegoverify: StegoVerifyTool,
+  waveform: WaveformTool,
+  glitch: GlitchTool,
+  jsongate: JsonGateTool,
+  jsonpatch: JsonPatchTool,
+  palift: PaliftTool,
 };
 
 function DjinnShell({ tabs, title }: { tabs: string[]; title: string }) {
