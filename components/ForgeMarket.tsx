@@ -69,7 +69,7 @@ export function ForgePage({
       />
       <p className="msg">{msg}</p>
       <button className="btn" type="button" onClick={onForge}>
-        Forge · 28 TC
+        Forge · 12 TC
       </button>
     </>
   );

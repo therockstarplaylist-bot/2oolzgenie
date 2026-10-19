@@ -181,6 +181,33 @@ export const FREE_TOOLS: {
   },
 ];
 
+export const FORGE_COST = 12;
+
+const FORGE_KEYWORDS: { id: string; words: string[] }[] = [
+  { id: "echo", words: ["echo", "note", "repeat", "whisper"] },
+  { id: "flip", words: ["flip", "coin", "heads", "tails"] },
+  { id: "joke", words: ["joke", "funny", "laugh"] },
+  { id: "sticker", words: ["sticker", "seal"] },
+  { id: "hourglass", words: ["hourglass", "reminder", "remember", "timer"] },
+  { id: "spark", words: ["spark", "sparkle"] },
+  { id: "compass", words: ["compass", "bearing"] },
+  { id: "lullaby", words: ["lullaby", "hum", "coil", "song"] },
+];
+
+export function matchForge(text: string) {
+  const q = text.toLowerCase();
+  let best: { id: string; score: number } | null = null;
+  for (const row of FORGE_KEYWORDS) {
+    let score = 0;
+    for (const word of row.words) {
+      if (q.includes(word)) score += word.length;
+    }
+    if (score > 0 && (!best || score > best.score)) best = { id: row.id, score };
+  }
+  if (!best) return null;
+  return FREE_TOOLS.find((tool) => tool.id === best.id) ?? null;
+}
+
 export type Tool = { n: string; r: string; t: number; freeId?: string };
 export type State = {
   coins: number;

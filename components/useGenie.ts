@@ -13,7 +13,9 @@ import {
   LOSS_CAP,
   OWNER_EMAIL,
   OWNER_GRANT,
+  FORGE_COST,
   PACKS,
+  matchForge,
   SY,
   TIERS,
   WHEEL,
@@ -231,16 +233,26 @@ export function useGenie() {
       setMsg("Type a tool.");
       return;
     }
-    if (!spend(28)) {
-      setMsg("Need 28 TC.");
+    const matched = matchForge(n);
+    if (!matched) {
+      setMsg("No keyword match. Try note, joke, reminder, compass, coin, or hum.");
       return;
     }
     const cur = stateRef.current;
+    if (cur.tools.some((tool) => tool.freeId === matched.id)) {
+      setMsg("Already in your library.");
+      return;
+    }
+    if (!spend(FORGE_COST)) {
+      setMsg("Need " + FORGE_COST + " TC.");
+      return;
+    }
+    const next = stateRef.current;
     persist({
-      ...cur,
-      tools: [{ n, r: "rare", t: Date.now() }, ...cur.tools],
+      ...next,
+      tools: [{ n: matched.n, r: "rare", t: Date.now(), freeId: matched.id }, ...next.tools],
     });
-    setMsg("Forged.");
+    setMsg("Forged " + matched.n + ".");
   };
   const onMarketBuy = (name: string) => {
     if (!spend(24)) {
