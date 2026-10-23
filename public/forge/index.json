@@ -1,0 +1,31 @@
+{
+ "format": "wonderforge-index-1",
+ "packs": [
+  {
+   "id": "marble-run",
+   "file": "marble-run.json",
+   "keywords": [
+    "marble",
+    "marbles",
+    "marblerun",
+    "rube",
+    "goldberg",
+    "domino",
+    "dominoes"
+   ],
+   "size": 1591
+  },
+  {
+   "id": "aurora",
+   "file": "aurora.json",
+   "keywords": [
+    "aurora",
+    "borealis",
+    "northern",
+    "lights",
+    "magnetosphere"
+   ],
+   "size": 1172
+  }
+ ]
+}
