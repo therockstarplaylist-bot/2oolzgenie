@@ -18,13 +18,24 @@ if (!googleClientId || !googleClientSecret) {
   );
 }
 
+// Google's discovery document says the callback includes iss, but the live
+// callback often does not. Auth.js then rejects it before a session exists.
+// Explicit token/userinfo URLs skip that discovery check. Issuer stays so a
+// callback that does include iss still matches accounts.google.com.
+const google = Google({
+  clientId: googleClientId,
+  clientSecret: googleClientSecret,
+  authorization: {
+    url: "https://accounts.google.com/o/oauth2/v2/auth",
+    params: { scope: "openid email profile" },
+  },
+  token: "https://oauth2.googleapis.com/token",
+  userinfo: "https://openidconnect.googleapis.com/v1/userinfo",
+});
+google.type = "oauth";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  providers: [
-    Google({
-      clientId: googleClientId,
-      clientSecret: googleClientSecret,
-    }),
-  ],
+  providers: [google],
   trustHost: true,
   session: { strategy: "jwt" },
   pages: {
