@@ -15,6 +15,7 @@ import {
   OWNER_GRANT,
   FORGE_COST,
   PACKS,
+  PAGES,
   matchForge,
   SY,
   TIERS,
@@ -115,10 +116,10 @@ export function useGenie() {
     setLastDrip(dripped.gained);
     let note = "";
     const q = new URLSearchParams(location.search);
-    if (q.get("page") === "shop") state = { ...state, page: "shop" };
-    if (q.get("page") === "tools") state = { ...state, page: "tools" };
-    if (q.get("page") === "profile") state = { ...state, page: "profile" };
-    if (q.get("page") === "casino") state = { ...state, page: "casino" };
+    const pageQ = q.get("page");
+    if (pageQ && (PAGES as readonly string[]).includes(pageQ)) {
+      state = { ...state, page: pageQ as Page };
+    }
     const emailQ = (q.get("email") || q.get("claim") || "").trim();
     const grantQ = q.get("grant");
     if (emailQ) state = { ...state, email: emailQ.toLowerCase() };

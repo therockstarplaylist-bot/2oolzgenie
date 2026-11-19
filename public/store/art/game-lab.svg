@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" role="img" aria-hidden="true">
+  <defs>
+    <linearGradient id="lab" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#140b2e"/>
+      <stop offset="1" stop-color="#071018"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="46%" r="40%">
+      <stop offset="0" stop-color="#3ee7ff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#3ee7ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#lab)"/>
+  <circle cx="300" cy="390" r="240" fill="url(#glow)"/>
+  <g fill="#d7fbff">
+    <circle cx="80" cy="90" r="2"/><circle cx="160" cy="140" r="1.5"/><circle cx="480" cy="80" r="2"/>
+    <circle cx="520" cy="180" r="1.5"/><circle cx="90" cy="240" r="1.4"/><circle cx="540" cy="300" r="2"/>
+    <circle cx="70" cy="420" r="1.5"/><circle cx="500" cy="520" r="1.6"/>
+  </g>
+  <g fill="none" stroke="#3ee7ff" stroke-opacity="0.28" stroke-width="2">
+    <path d="M40 620l260 90 260-90"/>
+    <path d="M80 600l220 76 220-76"/>
+    <path d="M140 640l40 80M300 560v150M460 640l-40 80M200 670l100 40 100-40"/>
+  </g>
+  <ellipse cx="300" cy="250" rx="150" ry="28" fill="none" stroke="#ff4ad2" stroke-width="4"/>
+  <ellipse cx="300" cy="250" rx="110" ry="16" fill="none" stroke="#7af6ff" stroke-width="3"/>
+  <g>
+    <ellipse cx="300" cy="360" rx="92" ry="28" fill="#12324a" stroke="#7af6ff" stroke-width="4"/>
+    <path d="M230 360c10-40 130-40 140 0" fill="#1f6b55" stroke="#d6ff4a" stroke-width="3"/>
+    <ellipse cx="150" cy="470" rx="58" ry="18" fill="#102033" stroke="#ff4ad2" stroke-width="4"/>
+    <path d="M108 468c8-26 76-26 84 0" fill="#145a48"/>
+    <ellipse cx="470" cy="500" rx="48" ry="16" fill="#102033" stroke="#3ee7ff" stroke-width="4"/>
+    <path d="M434 498c8-22 64-22 72 0" fill="#1c4f66"/>
+  </g>
+  <path d="M190 470c40-30 70-70 90-110M430 500c-20-40-60-70-110-90" fill="none" stroke="#d7fbff" stroke-opacity="0.7" stroke-width="2" stroke-dasharray="6 8"/>
+</svg>

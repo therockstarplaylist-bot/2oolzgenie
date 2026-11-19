@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { AuthControls } from "./AuthControls";
 import { PAGES } from "./constants";
 import {
@@ -94,6 +95,9 @@ export default function GenieApp() {
         </div>
       </header>
       <nav>
+        <Link href="/" className="store-link">
+          App Store
+        </Link>
         {PAGES.map((p) => (
           <button
             key={p}
