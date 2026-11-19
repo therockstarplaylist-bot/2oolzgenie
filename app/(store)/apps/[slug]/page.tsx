@@ -31,7 +31,12 @@ export default async function AppPage({ params }: { params: Promise<Params> }) {
   const app = getApp(slug);
   if (!app) notFound();
   const entries = await Promise.all(
-    app.files.map(async (file) => [file.filename, await fileFacts(file.filename)] as const),
+    app.files.map(async (file) => {
+      if (file.comingSoon || !file.filename) {
+        return [file.filename || file.button, { bytes: file.bytes || 0, sha256: file.sha256 || "" }] as const;
+      }
+      return [file.filename, await fileFacts(file.filename)] as const;
+    }),
   );
   const facts: Record<string, FileFacts> = Object.fromEntries(entries);
   return <AppDetail app={app} facts={facts} />;

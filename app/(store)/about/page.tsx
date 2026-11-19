@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 const LAMP = [
   { href: "/lamp", label: "Forge", note: "Describe a need and forge a tool." },
   { href: "/lamp?page=market", label: "Market", note: "Look through the tool shelf." },
-  { href: "/lamp?page=casino", label: "Casino", note: "Small coin games on the lamp." },
-  { href: "/lamp?page=arcade", label: "Arcade", note: "Hangman and a tap game." },
+  { href: "/lamp?page=casino", label: "Casino", note: "Chip games. Coins buy chips. Nothing pays real money." },
+  { href: "/lamp?page=arcade", label: "Arcade", note: "Seven small games. Sound stays off until you turn it on." },
   { href: "/lamp?page=tools", label: "Lamp tools", note: "Tools you forged, plus a few free demos." },
   { href: "/lamp?page=shop", label: "Shop", note: "Coin packs and lamp tiers for the genie site." },
   { href: "/lamp?page=profile", label: "Profile", note: "Your lamp, sign-in, and the owner grant." },
@@ -22,20 +22,21 @@ export default function AboutPage() {
       <h1>About</h1>
       <p>
         2oolzgenie App Store is Brandon&apos;s shelf for his own apps. Everything here is free.
-        The Android apps are indie builds. They are not from Google Play.
+        The Android apps are indie builds. They are not from Google Play. Lamp coins are only for the
+        games on the lamp. They are not cash.
       </p>
       <h2>On this store</h2>
       <ul className="link-list">
         <li>
           <Link href="/games">
             Games
-            <small>Deep Dive, Big Drop, and Game Lab</small>
+            <small>Deep Dive, Big Drop, Game Lab, Dream Lake, and Sovereign Campus</small>
           </Link>
         </li>
         <li>
           <Link href="/tools">
             Tools
-            <small>World Launcher and PhoneBridge</small>
+            <small>World Launcher, PhoneBridge, Winning Research Lab, and Avatar Maker</small>
           </Link>
         </li>
         <li>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import GenieApp from "@/components/GenieApp";
+import "../../lamp-neon.css";
 
 export const metadata: Metadata = {
   title: { absolute: "2oolz Genie" },

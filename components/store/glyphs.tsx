@@ -45,7 +45,7 @@ export function Glyph({ name, size = 28 }: GlyphProps) {
       </svg>
     );
   }
-  if (name === "lab") {
+  if (name === "campus" || name === "lake" || name === "research" || name === "avatar" || name === "lab") {
     return (
       <svg {...common}>
         <circle cx="24" cy="24" r="6" stroke="currentColor" strokeWidth="2.4" />

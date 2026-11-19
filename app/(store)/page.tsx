@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GameScroller, Hero, SectionHead, ToolRow } from "@/components/store/cards";
+import { GameScroller, Hero, SectionHead, ToolRow, TopPicks } from "@/components/store/cards";
 import { featuredApp, games, homeTools } from "@/lib/catalog";
 
 export default function StoreHomePage() {
@@ -8,6 +8,7 @@ export default function StoreHomePage() {
   return (
     <>
       <Hero app={featured} />
+      <TopPicks />
       <SectionHead id="games-heading" title="Games" href="/games" />
       <GameScroller apps={games()} />
       <SectionHead id="tools-heading" title="Tools" href="/tools" />

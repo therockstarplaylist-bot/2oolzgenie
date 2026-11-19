@@ -6,6 +6,9 @@ const DOWNLOADS = [
   ["GameLab-1.0.0.apk", "application/vnd.android.package-archive"],
   ["PhoneBridge-1.0.0.apk", "application/vnd.android.package-archive"],
   ["PhoneBridge-Setup-1.0.0.exe", "application/octet-stream"],
+  ["WinningResearchLab-3.0.3.apk", "application/vnd.android.package-archive"],
+  ["AvatarMaker-2.3.1.apk", "application/vnd.android.package-archive"],
+  ["DreamLake-1.0.7.apk", "application/vnd.android.package-archive"],
 ];
 
 /** @type {import('next').NextConfig} */

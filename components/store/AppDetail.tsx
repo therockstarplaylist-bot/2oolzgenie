@@ -58,7 +58,12 @@ export function AppDetail({
       ) : null}
       <div id="download" className="downloads">
         {app.files.map((file) => (
-          <FileBlock key={file.filename} app={app} file={file} facts={facts[file.filename]} />
+          <FileBlock
+            key={file.filename || file.button}
+            app={app}
+            file={file}
+            facts={facts[file.filename || file.button]}
+          />
         ))}
       </div>
       <p className="checksum-link">
@@ -79,9 +84,10 @@ function FileBlock({
   facts: FileFacts;
 }) {
   const platform = file.platform === "android" ? "Android" : "Windows";
+  const fileKey = file.filename || file.button;
   return (
-    <section className="file-block" aria-labelledby={`${file.filename}-title`}>
-      <h2 id={`${file.filename}-title`}>
+    <section className="file-block" aria-labelledby={`${fileKey}-title`}>
+      <h2 id={`${fileKey}-title`}>
         {app.name} for {platform}
       </h2>
       <p className="meta">
@@ -92,10 +98,19 @@ function FileBlock({
       </p>
       <p className="sha-label">SHA-256</p>
       <code className="sha">{facts.sha256}</code>
-      <a className="dl dl-block" href={downloadHref(file)} download={file.filename}>
-        <DownloadMark />
-        {file.button}
-      </a>
+      {file.comingSoon || !file.filename ? (
+        <>
+          <p>The install file is not on this page yet. The size and checksum below are for version {app.version}.</p>
+          <button type="button" className="dl dl-block" disabled>
+            Coming soon
+          </button>
+        </>
+      ) : (
+        <a className="dl dl-block" href={downloadHref(file)} download={file.filename}>
+          <DownloadMark />
+          {file.button}
+        </a>
+      )}
       {file.platform === "windows" ? (
         <p className="indie">This Windows setup is not from the Microsoft Store.</p>
       ) : null}

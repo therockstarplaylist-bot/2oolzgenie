@@ -5,6 +5,7 @@ import type { SyncStatus } from "./AuthControls";
 import {
   applyDrip,
   applyOwnerGrant,
+  applyOwnerVault,
   load,
   normalize,
   save,
@@ -48,6 +49,8 @@ export function useCloudLampStandalone(): SyncStatus {
           let next: State = { ...local, email: signedInEmail };
           const granted = applyOwnerGrant(next);
           next = granted.state;
+          const vault = applyOwnerVault(next, signedInEmail);
+          next = vault.state;
           save(next);
           return;
         }
@@ -60,6 +63,8 @@ export function useCloudLampStandalone(): SyncStatus {
         let merged = mergeLampStates(local, data.lamp ?? null);
         const granted = applyOwnerGrant(merged);
         merged = granted.state;
+        const vault = applyOwnerVault(merged, signedInEmail);
+        merged = vault.state;
         const dripped = applyDrip(merged);
         merged = dripped.state;
         save(merged);

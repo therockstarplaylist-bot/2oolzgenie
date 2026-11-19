@@ -43,6 +43,30 @@
       ]
     },
     {
+      "source": "/downloads/WinningResearchLab-3.0.3.apk",
+      "headers": [
+        { "key": "Content-Type", "value": "application/vnd.android.package-archive" },
+        { "key": "Content-Disposition", "value": "attachment; filename=WinningResearchLab-3.0.3.apk" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/downloads/AvatarMaker-2.3.1.apk",
+      "headers": [
+        { "key": "Content-Type", "value": "application/vnd.android.package-archive" },
+        { "key": "Content-Disposition", "value": "attachment; filename=AvatarMaker-2.3.1.apk" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/downloads/DreamLake-1.0.7.apk",
+      "headers": [
+        { "key": "Content-Type", "value": "application/vnd.android.package-archive" },
+        { "key": "Content-Disposition", "value": "attachment; filename=DreamLake-1.0.7.apk" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
       "source": "/downloads/PhoneBridge-Setup-1.0.0.exe",
       "headers": [
         { "key": "Content-Type", "value": "application/octet-stream" },

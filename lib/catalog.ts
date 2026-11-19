@@ -11,15 +11,19 @@
 
 export type Category = "game" | "tool";
 export type Platform = "android" | "windows";
-export type GlyphName = "island" | "dive" | "drop" | "lab" | "bridge";
+export type GlyphName = "island" | "dive" | "drop" | "lab" | "bridge" | "campus" | "research" | "avatar" | "lake";
 
 export type StoreFile = {
-  filename: string;
+  filename?: string;
   platform: Platform;
   /** Visible label on the big download button. */
   button: string;
   stepsTitle: string;
   steps: readonly string[];
+  comingSoon?: boolean;
+  /** Used when the file is not in the repo yet. */
+  bytes?: number;
+  sha256?: string;
 };
 
 export type Shot = {
@@ -280,7 +284,210 @@ export const APPS: readonly StoreApp[] = [
     ],
     indie: INDIE,
   },
+  {
+    slug: "sovereign-campus",
+    name: "Sovereign Campus",
+    category: "game",
+    version: "2.7.1",
+    price: "Free",
+    tagline: "A huge offline world, including Spokane.",
+    description:
+      "A huge offline living world on your phone, with towns, the real city of Spokane, bots with lives and families, a giant rock stadium with light shows, potions, rides, a Mariana Trench dive and more.",
+    glyph: "campus",
+    accent: "#ff4ad2",
+    card: {
+      src: "/store/screens/campus/SovereignCampus-2.3.0-render-1-aurora.png",
+      alt: "Sovereign Campus artwork of an aurora over a lit campus.",
+      caption: "Aurora over the campus",
+      art: false,
+    },
+    gallery: [
+      {
+        src: "/store/screens/campus/SovereignCampus-2.3.0-render-1-aurora.png",
+        alt: "Sovereign Campus scene with an aurora above the grounds.",
+        caption: "Aurora",
+        art: false,
+      },
+      {
+        src: "/store/screens/campus/SovereignCampus-2.4.0-after-2_campus_night.png",
+        alt: "Sovereign Campus at night, with the grounds lit up.",
+        caption: "Campus at night",
+        art: false,
+      },
+      {
+        src: "/store/screens/campus/SovereignCampus-2.2.8-02_potion_shop.png",
+        alt: "A potion shop inside Sovereign Campus.",
+        caption: "Potion shop",
+        art: false,
+      },
+      {
+        src: "/store/screens/campus/lead_stage_34.png",
+        alt: "A stadium stage with lights in Sovereign Campus.",
+        caption: "Stadium lights",
+        art: false,
+      },
+    ],
+    files: [
+      {
+        platform: "android",
+        button: "Coming soon",
+        stepsTitle: "How to install on Android",
+        steps: ANDROID_STEPS,
+        comingSoon: true,
+        bytes: 99276334,
+        sha256: "529fd43e11ce8493c2738c7970382f9892c5045f6d39b07dedc963ca1e32e141",
+      },
+    ],
+    indie: INDIE,
+  },
+  {
+    slug: "winning-research-lab",
+    name: "Winning Research Lab",
+    category: "tool",
+    version: "3.0.3",
+    price: "Free",
+    tagline: "Research bots that read, chat, and remember.",
+    description:
+      "A 3D lab of research bots that read your files and topics, chat with each other, and remember. Fully offline.",
+    glyph: "research",
+    accent: "#3ee7ff",
+    card: {
+      src: "/store/screens/wrl/v303-07-6_Demo_Research_Room.png",
+      alt: "Winning Research Lab research room with bots at work.",
+      caption: "Research room",
+      art: false,
+    },
+    gallery: [
+      {
+        src: "/store/screens/wrl/v303-01-choice.png",
+        alt: "The opening choice screen in Winning Research Lab.",
+        caption: "Choose a room",
+        art: false,
+      },
+      {
+        src: "/store/screens/wrl/v303-07-6_Demo_Research_Room.png",
+        alt: "Bots in the Winning Research Lab research room.",
+        caption: "Research room",
+        art: false,
+      },
+      {
+        src: "/store/screens/wrl/v303-08-7_Demo_Training_Room.png",
+        alt: "The training room in Winning Research Lab.",
+        caption: "Training room",
+        art: false,
+      },
+    ],
+    files: [
+      {
+        filename: "WinningResearchLab-3.0.3.apk",
+        platform: "android",
+        button: "Download for Android",
+        stepsTitle: "How to install on Android",
+        steps: ANDROID_STEPS,
+      },
+    ],
+    indie: INDIE,
+  },
+  {
+    slug: "avatar-maker",
+    name: "Avatar Maker",
+    category: "tool",
+    version: "2.3.1",
+    price: "Free",
+    tagline: "Build a 3D avatar from a photo or from scratch.",
+    description:
+      "Build 3D avatars from a photo or from scratch: faces, clothes, tattoos and stickers, with PNG, .obj, and .glb export.",
+    glyph: "avatar",
+    accent: "#ff4ad2",
+    card: {
+      src: "/store/screens/avatar/0-face-variations-closeup.png",
+      alt: "Close-up face variations made in Avatar Maker.",
+      caption: "Face variations",
+      art: false,
+    },
+    gallery: [
+      {
+        src: "/store/screens/avatar/0-face-variations-closeup.png",
+        alt: "Several Avatar Maker faces shown close up.",
+        caption: "Face variations",
+        art: false,
+      },
+      {
+        src: "/store/screens/avatar/4-face-photo-variation-C-3d-beard-freckles.png",
+        alt: "A 3D Avatar Maker face with a beard and freckles, made from a photo variation.",
+        caption: "Photo variation",
+        art: false,
+      },
+      {
+        src: "/store/screens/avatar/7-face-regular-avatar-variation.png",
+        alt: "A finished 3D avatar in Avatar Maker.",
+        caption: "A finished avatar",
+        art: false,
+      },
+    ],
+    files: [
+      {
+        filename: "AvatarMaker-2.3.1.apk",
+        platform: "android",
+        button: "Download for Android",
+        stepsTitle: "How to install on Android",
+        steps: ANDROID_STEPS,
+      },
+    ],
+    indie: INDIE,
+  },
+  {
+    slug: "dream-lake",
+    name: "Dream Lake",
+    category: "game",
+    version: "1.0.7",
+    price: "Free",
+    tagline: "Waterfalls, a sky dragon, and a carnival.",
+    description:
+      "A dreamy 3D world of waterfalls, a sky dragon tour, free falls, and a magical carnival of rides.",
+    glyph: "lake",
+    accent: "#7af6ff",
+    card: {
+      src: "/store/screens/dreamlake/01-whats-new-portrait.png",
+      alt: "Dream Lake scene introducing waterfalls and rides.",
+      caption: "What's new",
+      art: false,
+    },
+    gallery: [
+      {
+        src: "/store/screens/dreamlake/01-whats-new-portrait.png",
+        alt: "Dream Lake portrait of the world and its rides.",
+        caption: "The lake",
+        art: false,
+      },
+      {
+        src: "/store/screens/dreamlake/02-thrills-portrait.png",
+        alt: "Dream Lake thrills, with a drop and carnival rides.",
+        caption: "Thrills",
+        art: false,
+      },
+    ],
+    files: [
+      {
+        filename: "DreamLake-1.0.7.apk",
+        platform: "android",
+        button: "Download for Android",
+        stepsTitle: "How to install on Android",
+        steps: ANDROID_STEPS,
+      },
+    ],
+    indie: INDIE,
+  },
 ];
+
+export const TOP_PICKS = [
+  "sovereign-campus",
+  "world-launcher",
+  "winning-research-lab",
+  "deep-dive",
+  "dream-lake",
+  "avatar-maker",
+] as const;
 
 export function getApp(slug: string): StoreApp | undefined {
   return APPS.find((app) => app.slug === slug);

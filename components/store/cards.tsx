@@ -2,6 +2,8 @@ import Link from "next/link";
 import {
   downloadHref,
   androidFile,
+  getApp,
+  TOP_PICKS,
   type StoreApp,
 } from "@/lib/catalog";
 import { Glyph } from "./glyphs";
@@ -68,6 +70,34 @@ export function ToolRow({ app }: { app: StoreApp }) {
         Get<span className="sr-only"> {app.name}</span>
       </Link>
     </li>
+  );
+}
+
+export function TopPicks() {
+  const apps = TOP_PICKS.map((slug) => getApp(slug)).filter((app): app is StoreApp => Boolean(app));
+  return (
+    <section aria-labelledby="top-picks-heading">
+      <div className="section-head">
+        <h2 id="top-picks-heading">Top Picks</h2>
+      </div>
+      <ul className="top-picks">
+        {apps.map((app) => (
+          <li key={app.slug}>
+            <Link href={`/apps/${app.slug}`} className="top-pick">
+              <img src={app.card.src} alt="" width={800} height={480} />
+              <span className="game-card-shade" aria-hidden="true" />
+              {app.files.some((file) => file.comingSoon) ? <span className="art-flag">Coming soon</span> : null}
+              <span className="game-card-copy">
+                <span className="game-card-name">{app.name}</span>
+                <span className="game-card-tag" style={{ color: app.accent }}>
+                  {app.tagline}
+                </span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

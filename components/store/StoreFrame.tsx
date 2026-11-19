@@ -9,8 +9,8 @@ import { LampMark } from "./glyphs";
 const LAMP_LINKS = [
   { href: "/lamp", label: "Forge", note: "Describe a need and forge a tool" },
   { href: "/lamp?page=market", label: "Market", note: "Look through the tool shelf" },
-  { href: "/lamp?page=casino", label: "Casino", note: "Small coin games on the lamp" },
-  { href: "/lamp?page=arcade", label: "Arcade", note: "Hangman and a tap game" },
+  { href: "/lamp?page=casino", label: "Casino", note: "Chip games. Nothing pays real money" },
+  { href: "/lamp?page=arcade", label: "Arcade", note: "Seven free games" },
   { href: "/lamp?page=tools", label: "Lamp tools", note: "Forged tools and free demos" },
   { href: "/lamp?page=shop", label: "Shop", note: "Coin packs and lamp tiers" },
   { href: "/lamp?page=profile", label: "Profile", note: "Your lamp and sign-in" },
