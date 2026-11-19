@@ -1,16 +1,10 @@
 "use client";
 
-import { AuthControls } from "./AuthControls";
+import { ArcadeDeck } from "./arcade/ArcadeDeck";
+import { CasinoDeck } from "./casino/CasinoDeck";
+import { formatCount } from "@/lib/coins";
 import { PAGES } from "./constants";
-import {
-  ArcadePage,
-  CasinoPage,
-  ForgePage,
-  MarketPage,
-  ProfilePage,
-  ShopPage,
-  ToolsPage,
-} from "./GeniePages";
+import { ForgePage, MarketPage, ProfilePage, ShopPage, ToolsPage } from "./GeniePages";
 import { useCloudLampStandalone } from "./useCloudLampStandalone";
 import { useGenie } from "./useGenie";
 
@@ -18,19 +12,7 @@ export default function GenieApp() {
   const g = useGenie();
   const syncStatus = useCloudLampStandalone();
 
-  if (!g.ready) {
-    return (
-      <>
-        <header>
-          <div className="brand">2oolz Genie</div>
-          <div className="right">
-            <div className="coins">...</div>
-          </div>
-        </header>
-        <main />
-      </>
-    );
-  }
+  if (!g.ready) return <p className="lede">Opening the lamp…</p>;
 
   const {
     S,
@@ -41,71 +23,30 @@ export default function GenieApp() {
     need,
     setNeed,
     tick,
-    wheelDeg,
-    showSlots,
-    reels,
-    showDrop,
-    dropBits,
-    arcadeMode,
-    hangWord,
-    hangGuessed,
     hourly,
-    free,
-    hangMiss,
-    hangShown,
     go,
+    patch,
     onForge,
     onMarketBuy,
-    play,
-    onDropClick,
-    startHang,
-    startTap,
-    onTapHit,
-    onHangGuess,
     claimLamp,
     deleteTool,
     addFreeTool,
-    hilo,
-    face52,
-    extra,
   } = g;
 
   return (
-    <>
-      <header>
-        <div className="brand">2oolz Genie</div>
-        <div className="right">
-          <div className="coins">
-            {Math.floor(S.coins)} TC . +{hourly}/h
-          </div>
-          {S.tools.length > 0 && (
-            <button
-              className="buy tools-shortcut"
-              type="button"
-              onClick={() => go("tools")}
-            >
-              Tools
-            </button>
-          )}
-          <button className="buy" type="button" onClick={() => go("shop")}>
-            Buy
-          </button>
-          <AuthControls syncStatus={syncStatus} />
-        </div>
-      </header>
-      <nav>
+    <div className="lamp">
+      <p className="balance">
+        {formatCount(S.coins)} TC
+        {S.page === "casino" ? ` · ${formatCount(S.chips)} chips` : ""} · +{hourly}/h
+      </p>
+      <nav className="lamp-nav" aria-label="Lamp">
         {PAGES.map((p) => (
-          <button
-            key={p}
-            type="button"
-            className={S.page === p ? "on" : ""}
-            onClick={() => go(p)}
-          >
+          <button key={p} type="button" className={S.page === p ? "on" : ""} onClick={() => go(p)}>
             {p}
           </button>
         ))}
       </nav>
-      <main>
+      <div className="lamp-block">
         {S.page === "forge" && (
           <ForgePage
             S={S}
@@ -122,37 +63,8 @@ export default function GenieApp() {
         {S.page === "market" && (
           <MarketPage S={S} msg={msg} tick={tick} onMarketBuy={onMarketBuy} />
         )}
-        {S.page === "casino" && (
-          <CasinoPage
-            S={S}
-            msg={msg}
-            free={free}
-            wheelDeg={wheelDeg}
-            showSlots={showSlots}
-            reels={reels}
-            showDrop={showDrop}
-            dropBits={dropBits}
-            onPlay={play}
-            onDropClick={onDropClick}
-            hilo={hilo}
-            face52={face52}
-            extra={extra}
-          />
-        )}
-        {S.page === "arcade" && (
-          <ArcadePage
-            msg={msg}
-            arcadeMode={arcadeMode}
-            hangWord={hangWord}
-            hangGuessed={hangGuessed}
-            hangMiss={hangMiss}
-            hangShown={hangShown}
-            startHang={startHang}
-            startTap={startTap}
-            onTapHit={onTapHit}
-            onHangGuess={onHangGuess}
-          />
-        )}
+        {S.page === "casino" && <CasinoDeck S={S} patch={patch} setMsg={setMsg} msg={msg} />}
+        {S.page === "arcade" && <ArcadeDeck />}
         {S.page === "tools" && (
           <ToolsPage
             S={S}
@@ -174,7 +86,7 @@ export default function GenieApp() {
             syncStatus={syncStatus}
           />
         )}
-      </main>
-    </>
+      </div>
+    </div>
   );
 }

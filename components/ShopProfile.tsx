@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FREE_TOOLS,
   HOURLY,
@@ -35,21 +35,20 @@ export function ShopPage({
       </div>
       {payNote && <p className="msg ok">{payNote}</p>}
       <h2>Coin packs</h2>
-      {PACKS.map((p) => (
-        <div className="row" key={p.id}>
-          <div>
+      <p className="note">These coins are for the lamp games only. They are not cash, and the casino cannot pay them out as money.</p>
+      {PACKS.map((p) => {
+        const best = p.id === "vault";
+        return (
+          <div className="pack" key={p.id}>
+            {best ? <span className="badge">Best value</span> : null}
             <b>{p.l}</b>
-            <div className="seal">{p.c} TC</div>
+            <p>{p.c} TC · ${p.u}</p>
+            <button className="btn pay" type="button" onClick={() => goPaypal(p.id, p.l, p.u)}>
+              Pay ${p.u}
+            </button>
           </div>
-          <button
-            className="btn pay"
-            type="button"
-            onClick={() => goPaypal(p.id, p.l, p.u)}
-          >
-            Pay ${p.u}
-          </button>
-        </div>
-      ))}
+        );
+      })}
       <h2>Tiers</h2>
       {TIERS.filter((t) => t.id !== "free").map((t) => (
         <div className="row" key={t.id}>
@@ -107,29 +106,59 @@ export function ToolsPage({
       ? S.tools[openIdx]
       : null;
 
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  useEffect(() => {
+    if (secondsLeft == null || secondsLeft <= 0) return;
+    const id = window.setTimeout(() => setSecondsLeft((value) => (value == null ? value : value - 1)), 1000);
+    return () => window.clearTimeout(id);
+  }, [secondsLeft]);
+
   function runFreeDemo(tool: (typeof FREE_TOOLS)[number]) {
     const typed = tryInput.trim();
+    const roll = new Uint32Array(1);
+    crypto.getRandomValues(roll);
     if (tool.id === "echo") {
-      setTryOut(
-        "The lamp echoes: \"" + (typed || "hello from the free shelf") + "\""
-      );
+      if (!typed) {
+        setTryOut("Type a note first, then tap Echo.");
+        return;
+      }
+      setTryOut("The lamp echoes: \"" + typed + "\"");
       return;
     }
-    if (tool.id === "flip" && typed) {
-      setTryOut(
-        "You called " +
-          typed +
-          ". " +
-          tool.demo +
-          " (Still a demo — no TC.)"
-      );
+    if (tool.id === "flip") {
+      const side = roll[0] % 2 === 0 ? "heads" : "tails";
+      const called = typed.toLowerCase();
+      const calledSide = called.startsWith("h") ? "heads" : called.startsWith("t") ? "tails" : "";
+      setTryOut(side === calledSide ? `It's ${side}. That matches your call.` : calledSide ? `It's ${side}. Your call was ${calledSide}.` : `It's ${side}.`);
       return;
     }
-    if (tool.id === "hourglass" && typed) {
-      setTryOut("Noted: \"" + typed + "\". " + tool.demo);
+    if (tool.id === "joke") {
+      const jokes = [
+        "The lamp grants wishes. It also grants a receipt.",
+        "Why did the coin cross the wheel? To see the other side.",
+        "A genie walked into a forge and came out slightly rarer.",
+        "The house edge is a door. This joke does not open it.",
+      ];
+      setTryOut(jokes[roll[0] % jokes.length]);
       return;
     }
-    setTryOut(tool.demo);
+    if (tool.id === "sticker") {
+      setTryOut("Seal " + (roll[0] % 9000 + 1000) + " is stuck on the lamp. It does not change your coins.");
+      return;
+    }
+    if (tool.id === "hourglass" || tool.id === "calm") {
+      const minutes = Number(typed);
+      const seconds = tool.id === "calm" ? 60 : Number.isFinite(minutes) && minutes > 0 && minutes <= 10 ? Math.round(minutes * 60) : 60;
+      setSecondsLeft(seconds);
+      setTryOut(tool.id === "calm" ? "One calm minute. Breathe. There is no sound." : "Timer started. Stay on this page to watch it.");
+      return;
+    }
+    if (tool.id === "spark") {
+      const glows = ["cyan", "magenta", "violet"];
+      setTryOut("Glow set to " + glows[roll[0] % glows.length] + ". Cosmetic only.");
+      return;
+    }
+    setTryOut(tool.demo || "Done.");
   }
 
   if (open && openIdx != null) {
@@ -174,10 +203,13 @@ export function ToolsPage({
               >
                 {linked.runLabel || "Try it"}
               </button>
+              {secondsLeft != null ? <p className="try-out" data-testid="timer">{secondsLeft > 0 ? secondsLeft + " seconds left" : "Time's up."}</p> : null}
               {tryOut && <p className="try-out">{tryOut}</p>}
             </>
           ) : (
-            <p className="tool-body">{open.n}</p>
+            <p className="tool-body">
+              {open.n} is an older shelf name with no action. Delete it, or add a real tool from the free shelf.
+            </p>
           )}
           <div className="tool-actions">
             <button
@@ -242,6 +274,7 @@ export function ToolsPage({
           >
             {freeTool.runLabel || "Try it"}
           </button>
+          {secondsLeft != null ? <p className="try-out">{secondsLeft > 0 ? secondsLeft + " seconds left" : "Time's up."}</p> : null}
           {tryOut && <p className="try-out">{tryOut}</p>}
           {!tryOut && (
             <p className="note">
@@ -278,7 +311,7 @@ export function ToolsPage({
   return (
     <>
       <p className="seal">UELG:TOOLS_01</p>
-      <h1>Tools</h1>
+      <h1>Tools <span className="free-pill">Free for now</span></h1>
       <div className="hilo-bets" style={{ marginBottom: 12 }}>
         <button
           className={"btn" + (tab === "library" ? "" : " ghost")}
@@ -303,11 +336,10 @@ export function ToolsPage({
               <li>Tap a tool below</li>
               <li>Read what it does</li>
               <li>Type something if it asks</li>
-              <li>Tap <b>Try it</b> to run the demo</li>
+              <li>Tap the action button. It is free for now.</li>
             </ol>
             <p className="card-blurb">
-              These are demos — they show Open works. They do not spend TC and
-              are not powerful paid tools.
+              Each tool does the small job in its description. None of them spend TC.
             </p>
           </div>
           <div className="grid">

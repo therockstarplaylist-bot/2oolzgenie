@@ -1,16 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import Providers from "@/components/Providers";
 import "./globals.css";
 import "./auth.css";
 
 export const metadata: Metadata = {
-  title: "2oolz Genie",
+  title: {
+    default: "2oolzgenie App Store",
+    template: "%s · 2oolzgenie App Store",
+  },
   description:
-    "Forge a tool. Three free wishes. Coins drip every hour. Pay with card via PayPal.",
+    "Download Brandon's free Android apps and a Windows file tool. Indie apps, not from Google Play.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0b0d",
+  themeColor: "#070914",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -30,9 +32,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>
-        <Providers>{children}</Providers>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

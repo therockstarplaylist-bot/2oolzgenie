@@ -1,3 +1,5 @@
+import { COINS } from "@/lib/coins";
+
 export const PAGES = [
   "forge",
   "market",
@@ -9,28 +11,22 @@ export const PAGES = [
 ] as const;
 export type Page = (typeof PAGES)[number];
 export const KEY = "2oolz-v2";
-export const START = 50;
+export const START = COINS.start;
 export const LOSS_CAP = 200;
 export const ARCADE_CAP = 50;
 export const DROP_COST = 25;
 export const WISH_BET = 10;
-export const MAX_H = 72;
+export const MAX_H = COINS.maxBankedHours;
 export const PAYPAL = "lonnyyells@gmail.com";
 export const OWNER_EMAIL = "therockstarplaylist@gmail.com";
-export const OWNER_GRANT = 1000;
-export const HOURLY: Record<string, number> = {
-  free: 1,
-  basic: 3,
-  pro: 6,
-  ultimate: 10,
-  lifetime: 15,
-};
+export const OWNER_GRANT = COINS.legacyOwnerGrant;
+export const HOURLY: Record<string, number> = { ...COINS.hourly };
 export const TIERS = [
-  { id: "free", l: "Free", c: 50, u: 0, cad: "start" },
-  { id: "basic", l: "Basic", c: 300, u: 9, cad: "year" },
-  { id: "pro", l: "Pro", c: 650, u: 29, cad: "year" },
-  { id: "ultimate", l: "Ultimate", c: 1000, u: 79, cad: "year" },
-  { id: "lifetime", l: "Lifetime", c: 2500, u: 149, cad: "once" },
+  { id: "free", l: "Free", c: COINS.start, u: 0, cad: "start" },
+  { id: "basic", l: "Basic", c: COINS.tierGrant.basic, u: 9, cad: "year" },
+  { id: "pro", l: "Pro", c: COINS.tierGrant.pro, u: 29, cad: "year" },
+  { id: "ultimate", l: "Ultimate", c: COINS.tierGrant.ultimate, u: 79, cad: "year" },
+  { id: "lifetime", l: "Lifetime", c: COINS.tierGrant.lifetime, u: 149, cad: "once" },
 ] as const;
 export const PACKS = [
   { id: "starter", l: "Starter pack", c: 120, u: 5 },
@@ -160,28 +156,23 @@ export const FREE_TOOLS: {
     runLabel: "Sparkle",
   },
   {
-    id: "compass",
-    n: "Soft Compass",
+    id: "calm",
+    n: "Calm Minute",
     r: "free",
-    blurb: "Points vaguely toward the Forge.",
-    how: ["Tap Open", "Tap Try it", "Read the silly bearing"],
-    body: "Not navigation. A demo compass that always leans lampward.",
-    demo: "Bearing: toward the forge. Confidence: soft.",
-    runLabel: "Take a bearing",
-  },
-  {
-    id: "lullaby",
-    n: "Coil Lullaby",
-    r: "free",
-    blurb: "A tiny text hum. No audio file.",
-    how: ["Tap Open", "Tap Try it", "Read the hum — audio not included"],
-    body: "Pretend sound tool. Text only. Demo shelf.",
-    demo: "mmm… coil… hum… (demo audio not included)",
-    runLabel: "Hum",
+    blurb: "A one-minute pause you can see counting down.",
+    how: [
+      "Tap Open",
+      "Tap Start the minute",
+      "Breathe while the number counts down. There is no sound.",
+    ],
+    body: "A one-minute timer on this page. It does not play audio and it does not leave the lamp.",
+    demo: "",
+    runLabel: "Start the minute",
   },
 ];
 
-export const FORGE_COST = 12;
+export const FORGE_COST = COINS.forgeCost;
+export const MARKET_COST = COINS.marketCost;
 
 const FORGE_KEYWORDS: { id: string; words: string[] }[] = [
   { id: "echo", words: ["echo", "note", "repeat", "whisper"] },
@@ -190,8 +181,7 @@ const FORGE_KEYWORDS: { id: string; words: string[] }[] = [
   { id: "sticker", words: ["sticker", "seal"] },
   { id: "hourglass", words: ["hourglass", "reminder", "remember", "timer"] },
   { id: "spark", words: ["spark", "sparkle"] },
-  { id: "compass", words: ["compass", "bearing"] },
-  { id: "lullaby", words: ["lullaby", "hum", "coil", "song"] },
+  { id: "calm", words: ["calm", "breathe", "lullaby", "hum", "minute"] },
 ];
 
 export function matchForge(text: string) {
@@ -221,6 +211,12 @@ export type State = {
   passiveAt: number;
   email?: string;
   ownerGrant?: boolean;
+  /** Casino chips. 2 chips = 1 TC. Never worth real money. */
+  chips: number;
+  /** YYYY-MM-DD of the last daily bonus, or "". */
+  lastDaily: string;
+  /** Owner sign-in top-up to COINS.ownerBalance has already run. */
+  ownerVault?: boolean;
 };
 export type DropBit = {
   id: number;
@@ -253,6 +249,9 @@ export function defaultState(): State {
     tier: "free",
     wishes: 3,
     passiveAt: Date.now(),
+    chips: 0,
+    lastDaily: "",
+    ownerVault: false,
   };
 }
 export function normalize(raw: Partial<State> | null): State {
@@ -264,12 +263,37 @@ export function normalize(raw: Partial<State> | null): State {
   if (typeof S.email === "string") S.email = S.email.trim().toLowerCase();
   else delete S.email;
   if (S.ownerGrant == null) S.ownerGrant = false;
+  S.chips = Number.isFinite(Number(S.chips)) ? Math.max(0, Math.trunc(Number(S.chips))) : 0;
+  S.coins = Number.isFinite(Number(S.coins)) ? Math.max(0, Math.trunc(Number(S.coins))) : START;
+  if (typeof S.lastDaily !== "string") S.lastDaily = "";
+  if (S.ownerVault == null) S.ownerVault = false;
   if (S.day !== today()) {
     S.loss = 0;
     S.earn = 0;
     S.day = today();
   }
   return S;
+}
+/** Sign-in only. Do not call this from a typed email or a query string. */
+export function applyOwnerVault(
+  S: State,
+  signedInEmail: string
+): { state: State; granted: boolean } {
+  const email = signedInEmail.trim().toLowerCase();
+  if (!email || email !== OWNER_EMAIL.toLowerCase()) {
+    return { state: S, granted: false };
+  }
+  if (S.ownerVault) return { state: { ...S, email }, granted: false };
+  return {
+    state: {
+      ...S,
+      email,
+      coins: Math.max(Math.trunc(S.coins) || 0, COINS.ownerBalance),
+      ownerGrant: true,
+      ownerVault: true,
+    },
+    granted: true,
+  };
 }
 export function applyOwnerGrant(S: State): { state: State; granted: boolean } {
   const email = (S.email || "").trim().toLowerCase();

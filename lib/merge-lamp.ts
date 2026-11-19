@@ -35,6 +35,12 @@ export function mergeLampStates(local: State, cloud: State | null): State {
     tier: higherTier(local.tier || "free", cloud.tier || "free"),
     wishes: Math.max(Number(local.wishes) || 0, Number(cloud.wishes) || 0),
     ownerGrant: Boolean(local.ownerGrant || cloud.ownerGrant),
+    ownerVault: Boolean(local.ownerVault || cloud.ownerVault),
+    chips: Math.max(Math.trunc(Number(local.chips) || 0), Math.trunc(Number(cloud.chips) || 0)),
+    lastDaily:
+      (local.lastDaily || "") >= (cloud.lastDaily || "")
+        ? local.lastDaily || ""
+        : cloud.lastDaily || "",
     passiveAt: Math.max(
       Number(local.passiveAt) || 0,
       Number(cloud.passiveAt) || 0

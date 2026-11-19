@@ -26,7 +26,10 @@ function AuthErrorInner() {
       ) : null}
       <div className="tool-actions" style={{ marginTop: 20 }}>
         <Link href="/" className="btn ghost">
-          Go home
+          App Store
+        </Link>
+        <Link href="/lamp" className="btn ghost">
+          Open the lamp
         </Link>
         <button type="button" className="btn" onClick={() => signIn("google")}>
           Try again

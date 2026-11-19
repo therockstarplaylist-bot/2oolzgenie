@@ -14,7 +14,10 @@ import {
   OWNER_EMAIL,
   OWNER_GRANT,
   FORGE_COST,
+  FREE_TOOLS,
+  MARKET_COST,
   PACKS,
+  PAGES,
   matchForge,
   SY,
   TIERS,
@@ -115,10 +118,10 @@ export function useGenie() {
     setLastDrip(dripped.gained);
     let note = "";
     const q = new URLSearchParams(location.search);
-    if (q.get("page") === "shop") state = { ...state, page: "shop" };
-    if (q.get("page") === "tools") state = { ...state, page: "tools" };
-    if (q.get("page") === "profile") state = { ...state, page: "profile" };
-    if (q.get("page") === "casino") state = { ...state, page: "casino" };
+    const pageQ = q.get("page");
+    if (pageQ && (PAGES as readonly string[]).includes(pageQ)) {
+      state = { ...state, page: pageQ as Page };
+    }
     const emailQ = (q.get("email") || q.get("claim") || "").trim();
     const grantQ = q.get("grant");
     if (emailQ) state = { ...state, email: emailQ.toLowerCase() };
@@ -175,6 +178,11 @@ export function useGenie() {
       clearInterval(carouselId);
     };
   }, [ready, persist]);
+  const patch = (recipe: Partial<State> | ((current: State) => Partial<State>)) => {
+    const current = stateRef.current;
+    const partial = typeof recipe === "function" ? recipe(current) : recipe;
+    persist({ ...current, ...partial });
+  };
   const go = (p: Page) => {
     persist({ ...stateRef.current, page: p });
     setMsg("");
@@ -235,7 +243,7 @@ export function useGenie() {
     }
     const matched = matchForge(n);
     if (!matched) {
-      setMsg("No keyword match. Try note, joke, reminder, compass, coin, or hum.");
+      setMsg("No match. Try note, joke, reminder, coin, sparkle, or calm.");
       return;
     }
     const cur = stateRef.current;
@@ -243,7 +251,7 @@ export function useGenie() {
       setMsg("Already in your library.");
       return;
     }
-    if (!spend(FORGE_COST)) {
+    if (FORGE_COST > 0 && !spend(FORGE_COST)) {
       setMsg("Need " + FORGE_COST + " TC.");
       return;
     }
@@ -255,16 +263,22 @@ export function useGenie() {
     setMsg("Forged " + matched.n + ".");
   };
   const onMarketBuy = (name: string) => {
-    if (!spend(24)) {
-      setMsg("Need 24 TC.");
+    const matched = FREE_TOOLS.find((tool) => tool.n === name);
+    const cur = stateRef.current;
+    if (matched && cur.tools.some((tool) => tool.freeId === matched.id)) {
+      setMsg("Already in your library.");
       return;
     }
-    const cur = stateRef.current;
+    if (MARKET_COST > 0 && !spend(MARKET_COST)) {
+      setMsg("Need " + MARKET_COST + " TC.");
+      return;
+    }
+    const next = stateRef.current;
     persist({
-      ...cur,
-      tools: [{ n: name, r: "shelf", t: Date.now() }, ...cur.tools],
+      ...next,
+      tools: [{ n: name, r: "free", t: Date.now(), freeId: matched?.id }, ...next.tools],
     });
-    setMsg("Kept.");
+    setMsg("Added " + name + ".");
   };
   const play = (g: "wheel" | "slots" | "drop") => {
     const cur = stateRef.current;
@@ -706,6 +720,7 @@ export function useGenie() {
     hangMiss,
     hangShown,
     go,
+    patch,
     onForge,
     onMarketBuy,
     play,

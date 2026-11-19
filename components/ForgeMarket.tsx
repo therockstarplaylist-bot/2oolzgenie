@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  SEED,
-  TEASE,
-  type State,
-} from "./constants";
+import { FORGE_COST, FREE_TOOLS, MARKET_COST, TEASE, type State } from "./constants";
 
 export function Carousel({ tick }: { tick: number }) {
   const i = Math.floor(tick / 30000) % TEASE.length;
@@ -69,8 +65,10 @@ export function ForgePage({
       />
       <p className="msg">{msg}</p>
       <button className="btn" type="button" onClick={onForge}>
-        Forge · 12 TC
+        Forge{FORGE_COST > 0 ? ` · ${FORGE_COST} TC` : ""}
+        <span className="free-pill">Free for now</span>
       </button>
+      <p className="note">Describe a note, joke, reminder, coin flip, sparkle, or a calm minute. Empty text is not a tool.</p>
     </>
   );
 }
@@ -88,24 +86,22 @@ export function MarketPage({
 }) {
   return (
     <>
-      <p className="seal">UELG:MARKET_01</p>
+      <p className="seal">The shelf</p>
       <h1>Market</h1>
+      <p className="note">
+        These are the real lamp tools. Adding one is free for now
+        {MARKET_COST > 0 ? ` (${MARKET_COST} TC)` : ""}. Open it under Tools.
+      </p>
       <Carousel tick={tick} />
       <div className="grid">
-        {SEED.map((x) => (
-          <div className="row" key={x[0]}>
+        {FREE_TOOLS.map((tool) => (
+          <div className="row" key={tool.id}>
             <div>
-              <b>{x[0]}</b>
-              <div className="seal">
-                {x[1]} · {x[2]}
-              </div>
+              <b>{tool.n}</b>
+              <div className="seal">{tool.blurb}</div>
             </div>
-            <button
-              className="btn ghost buy"
-              type="button"
-              onClick={() => onMarketBuy(x[0])}
-            >
-              Buy · 24 TC
+            <button className="btn ghost buy" type="button" onClick={() => onMarketBuy(tool.n)}>
+              Add<span className="free-pill">Free for now</span>
             </button>
           </div>
         ))}

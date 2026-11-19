@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { AuthControls, type SyncStatus } from "./AuthControls";
+import { formatCount } from "@/lib/coins";
 import { OWNER_EMAIL, type State } from "./constants";
 
 export function ProfilePage({
@@ -36,9 +37,7 @@ export function ProfilePage({
       </button>
       <h2>Email / claim</h2>
       <p className="note">
-        Sign in with Google to cloud-save your lamp. Owner grant: claim with{" "}
-        {OWNER_EMAIL} for +1000 TC once (also applies when that Google account
-        signs in).
+        Sign in with Google to cloud-save your lamp. The older claim still adds 1,000 TC once for {OWNER_EMAIL}. Signing in as that Google account also tops the lamp up to {formatCount(999_999_999)} TC once. Typing the address here does not grant that top-up.
       </p>
       <input
         className="email-field"
